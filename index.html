@@ -1405,7 +1405,8 @@ function paintTheme(){
   const b = document.getElementById('mode');
   b.innerHTML = dark ? ICON_SUN : ICON_MOON;
   b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
-  document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#151A17' : '#F3EDE1');
+  const mt = document.querySelector('meta[name="theme-color"]');   /* absent when hosted as an artifact */
+  if (mt) mt.setAttribute('content', dark ? '#151A17' : '#F3EDE1');
 }
 document.getElementById('mode').onclick = () => {
   ui.theme = ui.theme === 'dark' ? 'light' : 'dark';
