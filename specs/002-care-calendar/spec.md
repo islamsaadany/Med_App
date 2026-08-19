@@ -4,7 +4,7 @@
 
 **Created**: 2026-08-19
 
-**Status**: Built on the feature branch — awaiting user approval of the mockup before merge
+**Status**: Implemented — mockup approved by the user via the interactive artifact preview (2026-08-19)
 
 **Input**: User description: "Care calendar: doctor visits/checkups and lab tests. A visit can be set on a fixed date OR anchored to a medication course finishing (e.g. 'when Trigastrocare ends' or 'N days after it ends'). Lab tests/analyses attach to a visit and are allocated relative to the visit date (e.g. '3 days before the visit'). A calendar view shows when to do what — upcoming visits, tests, and medication course ends — and items can be marked done. Synced across devices like the med list."
 

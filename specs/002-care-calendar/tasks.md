@@ -47,9 +47,8 @@
 
 - [x] T011 Full quickstart run (checks 1–8) + sync & history regressions;
       both-theme screenshots
-- [ ] T012 `sw.js` VERSION bump and `CLAUDE.md` done; merge to main BLOCKED —
-      awaiting the user's approval of the visual mockup (screens shared
-      2026-08-19); do not merge until they approve
+- [x] T012 `sw.js` VERSION bump and `CLAUDE.md` done; user approved the
+      interactive artifact preview; merged to main 2026-08-19
 
 ## Dependencies
 
