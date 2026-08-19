@@ -33,8 +33,10 @@ The only server code is `api/sync.js`, a Vercel function over a Neon Postgres da
   hiding is pure CSS, scoped to `#day`.
 - **Care calendar.** Doctor visits (`care:v1`, synced) anchor to a fixed date OR to a med
   course ending (`after` med id + `offset` days past `courseEnd`, resolved through
-  `effStart`); lab tests live inside their visit with a `before` offset. All dates derive
-  at render time via `visitDate`/`testDate`. Deleting a med freezes anchored visits to
+  `effStart`); lab tests live inside their visit with a `before` offset, and an optional
+  booking-call reminder (`v.book = {before, done}`) surfaces a "Call to book" item that
+  many days ahead of the visit. All dates derive at render time via
+  `visitDate`/`testDate`/`bookDate`. Deleting a med freezes anchored visits to
   their last computed date (same handler that re-roots dependent meds). Month grid weeks
   start Friday. In-app notification: `updateCareNote()` shows the checklist banner and the
   calendar-icon dot for due/overdue undone items. Spec: `specs/002-care-calendar/`.
