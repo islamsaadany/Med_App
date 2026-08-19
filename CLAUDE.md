@@ -12,9 +12,9 @@ The only server code is `api/sync.js`, a Vercel function over a Neon Postgres da
   (`:root`) and once for dark (`html.dark`). Change colours there, not inline. Tints are
   `color-mix(...)` over the palette vars so both themes get them for free — never add a
   hard-coded rgba/hex tint. Text on solid accent backgrounds is `--on-accent`.
-- `<body>` — header (title, date, progress bar, three icon buttons: theme, detail, config),
-  meal subtabs, four views (checklist, setup, travel, history), the sync section inside
-  the setup view, the add/edit modal.
+- `<body>` — header (title left; theme/detail/config icon buttons and the date right,
+  date bottom-aligned to the title), segmented meal tabs, four views (checklist, setup,
+  travel, history), the sync section inside the setup view, the add/edit modal.
 - `<script>` — in order: storage wrapper, date maths, the seeded prescription, state, label
   helpers, checklist render, travel calculator, history view, configuration render,
   navigation, theme, modal, sync.
@@ -33,7 +33,7 @@ The only server code is `api/sync.js`, a Vercel function over a Neon Postgres da
 - **History** is derived entirely at render time (day summaries, streak, per-med record) from
   meds + log — it never writes and has no stored state. `expectedOn(date)` = active meds ×
   their meals via `activeOn`; taken = intersection with `takenOn(date)`, so ticks for deleted
-  meds are ignored. Entry points: tapping the progress area on the checklist, or the button in
+  meds are ignored. Entry points: tapping the date on the checklist, or the button in
   setup; `histBack`/`histMed` are transient, never persisted. Spec: `specs/001-history-view/`.
 
 ## Storage
