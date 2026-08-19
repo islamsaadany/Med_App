@@ -1,6 +1,6 @@
 /* Doses — offline service worker.
    App shell is cached on install; fonts are cached as they're used. */
-const VERSION = 'doses-v1';
+const VERSION = 'doses-v2';
 const SHELL = [
   './',
   './index.html',
@@ -31,6 +31,8 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
+  /* sync always goes to the network — serving it from cache would sync stale data */
+  if (url.pathname.startsWith('/api/')) return;
   const isFont = /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
 
   /* the page itself: network first so a new deploy shows up, cache as the fallback */

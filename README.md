@@ -2,13 +2,16 @@
 
 Meal-anchored medication checklist: breakfast / lunch / dinner instead of clock times,
 with course durations, dependencies between courses, and a travel packing calculator.
-Static site, no build, no server. All data stays on the device.
+Static front-end, no build step. Data lives on the device, with optional sync
+across devices through a small serverless function and a Neon Postgres database.
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `index.html` | The whole app |
+| `index.html` | The whole front-end |
+| `api/sync.js` | Vercel function backing the cross-device sync |
+| `package.json` | Dependency of the sync function (`@neondatabase/serverless`) |
 | `manifest.webmanifest` | Installability, name, icons |
 | `sw.js` | Offline cache |
 | `icon-*.png` | 180 for iOS, 192/512 for Android |
@@ -18,10 +21,21 @@ Static site, no build, no server. All data stays on the device.
 ## Deploy
 
 **Vercel** — import the repo, framework preset "Other", no build command, output directory `./`.
+For sync, add the **Neon** integration (Storage tab → Create database → Neon); it injects
+`DATABASE_URL` into the deployment, and `api/sync.js` creates its one table on first use.
+Without a database the app still works — the sync section just reports that no database is linked.
 
-**GitHub Pages** — Settings → Pages → deploy from `main`, folder `/ (root)`.
+**GitHub Pages** — Settings → Pages → deploy from `main`, folder `/ (root)`. The app works
+fully offline-local this way, but sync needs the Vercel function, so the sync section will
+show "can't reach the server".
 
-Either way the files must sit at the repository root.
+## Sync
+
+Off by default. In the setup view, one device turns sync on and gets a private code
+(e.g. `doses-x7k2mp-9fw3qh`); other devices enter that code and share the list and the
+tick history from then on. The code is the only credential — anyone who has it can read
+and write that list, so treat it like a password. Meds resolve conflicts by
+last-write-wins; ticks and unticks merge per entry by timestamp.
 
 ## Install on iPhone
 
@@ -33,5 +47,6 @@ survives. Opening the URL as a normal tab, or the file locally, does not give yo
 
 ## Data
 
-Lives in the browser storage of that one install. Deleting the icon or clearing site data
-removes the medication list and the tick history.
+Lives in the browser storage of that install. Deleting the icon or clearing site data
+removes the local copy; if sync is on, the list survives on the server and comes back
+by entering the same code again.

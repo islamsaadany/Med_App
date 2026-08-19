@@ -27,25 +27,45 @@
     --before:#C1763C;      /* just before the meal */
     --withm:#2E5D4B;       /* with / right after */
     --wait:#8B5CB8;        /* wait after the meal */
+    --dep-ink:#6C3F96;     /* text on the wait/dependency tint */
+    --on-accent:#F7F3EA;   /* text on solid accent backgrounds */
     --line:rgba(30,42,36,.14);
     --shadow:0 1px 0 rgba(30,42,36,.05), 0 10px 24px -14px rgba(30,42,36,.4);
     --r:16px;
   }
+  /* dark theme — light is the default, this only applies when the user flips it */
+  html.dark{
+    --paper:#151A17; --paper-2:#1F2621;
+    --ink:#E8E3D7; --ink-soft:#9DA89F;
+    --green:#8CBEA6; --green-dim:#55685D;
+    --ochre:#D9975E; --clay:#CE7A64;
+    --bwait:#74AACD;
+    --before:#D9975E;
+    --withm:#8CBEA6;
+    --wait:#B492D8;
+    --dep-ink:#C9ADE8;
+    --on-accent:#13201A;
+    --line:rgba(232,227,215,.15);
+    --shadow:0 1px 0 rgba(0,0,0,.25), 0 10px 24px -14px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0;color-scheme:light only;forced-color-adjust:none;-webkit-text-size-adjust:100%}
-  html{background:#F3EDE1}
-  /* if anything in the host asks for dark, re-assert the paper palette */
+  html.dark,html.dark body{color-scheme:dark}
+  html{background:var(--paper)}
+  /* if the host tries to force-darken the page, re-assert the active palette
+     (in vars, so the manual dark theme keeps working under system dark too) */
   @media (prefers-color-scheme: dark){
-    html,body{background-color:#F3EDE1 !important;color:#1E2A24 !important}
-    .card,.med-row,.sheet,.icon-btn,.filters button.on{background-color:#FBF7EF !important;color:#1E2A24 !important}
-    input,select,.seg,.gap-opts button{background-color:#F3EDE1 !important;color:#1E2A24 !important}
-    .name,.n,h1,h2,h3{color:#1E2A24 !important}
+    html,body{background-color:var(--paper) !important;color:var(--ink) !important}
+    .card,.med-row,.sheet,.icon-btn,.filters button.on{background-color:var(--paper-2) !important;color:var(--ink) !important}
+    input,select,.seg,.gap-opts button{background-color:var(--paper) !important;color:var(--ink) !important}
+    .name,.n,h1,h2,h3{color:var(--ink) !important}
   }
   body{
     background:var(--paper);
     background-image:
-      radial-gradient(120% 60% at 100% 0%, rgba(193,118,60,.12) 0%, transparent 60%),
-      radial-gradient(90% 50% at 0% 100%, rgba(46,93,75,.12) 0%, transparent 65%);
+      radial-gradient(120% 60% at 100% 0%, color-mix(in srgb, var(--ochre) 12%, transparent) 0%, transparent 60%),
+      radial-gradient(90% 50% at 0% 100%, color-mix(in srgb, var(--green) 12%, transparent) 0%, transparent 65%);
     background-attachment:fixed;
     color:var(--ink);
     font-family:"Karla",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -59,7 +79,7 @@
   h1 em{font-style:italic;color:var(--ochre)}
   .date{color:var(--ink-soft);font-size:14px;margin-top:8px}
   .bar{margin-top:14px}
-  .bar-track{height:6px;background:rgba(30,42,36,.1);border-radius:99px;overflow:hidden}
+  .bar-track{height:6px;background:color-mix(in srgb, var(--ink) 10%, transparent);border-radius:99px;overflow:hidden}
   .bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--green-dim));border-radius:99px;transition:width .45s cubic-bezier(.2,.8,.2,1)}
   .bar-label{font-size:12.5px;color:var(--ink-soft);margin-top:7px}
 
@@ -69,7 +89,7 @@
   .icon-btn{flex:0 0 auto;width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--paper-2);
     color:var(--ink);cursor:pointer;display:grid;place-items:center;box-shadow:var(--shadow);transition:transform .18s ease,background .2s}
   .icon-btn:active{transform:scale(.93)}
-  .icon-btn.on{background:var(--green);color:#F7F3EA;border-color:var(--green)}
+  .icon-btn.on{background:var(--green);color:var(--on-accent);border-color:var(--green)}
   .icon-btn svg{width:21px;height:21px}
 
   .filters{display:flex;gap:8px;margin:18px 0 2px}
@@ -78,11 +98,11 @@
     cursor:pointer;transition:all .2s}
   .filters button .dot{opacity:.35;transition:opacity .2s}
   .filters button.on{background:var(--paper-2);color:var(--ink);box-shadow:0 2px 8px -4px rgba(30,42,36,.4)}
-  .filters button.on{border-color:rgba(30,42,36,.3)}
+  .filters button.on{border-color:color-mix(in srgb, var(--ink) 30%, transparent)}
   .filters button.on .dot{opacity:1}
-  .filters .badge{min-width:19px;height:19px;padding:0 5px;border-radius:99px;background:rgba(30,42,36,.12);
+  .filters .badge{min-width:19px;height:19px;padding:0 5px;border-radius:99px;background:color-mix(in srgb, var(--ink) 12%, transparent);
     color:var(--ink-soft);font-size:11px;font-weight:700;display:grid;place-items:center}
-  .filters button.on .badge{background:var(--green);color:#F7F3EA}
+  .filters button.on .badge{background:var(--green);color:var(--on-accent)}
   .filters .badge.clear{background:transparent;color:var(--green);font-size:13px}
   .filters .badge:empty{display:none}
   .view{display:none}
@@ -95,7 +115,7 @@
   .dot.lunch{background:var(--green)}
   .dot.dinner{background:var(--clay)}
   .dot.soon{background:var(--green-dim)}
-  .dot.fin{background:rgba(30,42,36,.25)}
+  .dot.fin{background:color-mix(in srgb, var(--ink) 25%, transparent)}
 
   /* ---- timing group ---- */
   .grp-head{display:flex;align-items:center;gap:8px;margin:22px 2px 10px}
@@ -116,26 +136,26 @@
   .card.g-before::before{background:var(--before)}
   .card.g-with::before{background:var(--withm)}
   .card.g-wait::before{background:var(--wait)}
-  .card.g-bwait{background:linear-gradient(90deg,rgba(63,126,166,.08),transparent 55%),var(--paper-2)}
-  .card.g-before{background:linear-gradient(90deg,rgba(193,118,60,.07),transparent 55%),var(--paper-2)}
-  .card.g-with{background:linear-gradient(90deg,rgba(46,93,75,.07),transparent 55%),var(--paper-2)}
-  .card.g-wait{background:linear-gradient(90deg,rgba(139,92,184,.08),transparent 55%),var(--paper-2)}
-  .card.done{background:rgba(46,93,75,.07);border-color:rgba(46,93,75,.22)}
+  .card.g-bwait{background:linear-gradient(90deg,color-mix(in srgb, var(--bwait) 8%, transparent),transparent 55%),var(--paper-2)}
+  .card.g-before{background:linear-gradient(90deg,color-mix(in srgb, var(--before) 7%, transparent),transparent 55%),var(--paper-2)}
+  .card.g-with{background:linear-gradient(90deg,color-mix(in srgb, var(--withm) 7%, transparent),transparent 55%),var(--paper-2)}
+  .card.g-wait{background:linear-gradient(90deg,color-mix(in srgb, var(--wait) 8%, transparent),transparent 55%),var(--paper-2)}
+  .card.done{background:color-mix(in srgb, var(--green) 8%, transparent);border-color:color-mix(in srgb, var(--green) 25%, transparent)}
   .card.done::before{background:var(--green)}
 
   .body{flex:1;min-width:0}
   .name{display:flex;align-items:center;font-weight:700;font-size:16.5px;letter-spacing:-.01em;word-break:break-word}
   .amt{display:inline-grid;place-items:center;text-decoration:none;min-width:24px;height:24px;padding:0 7px;
-    font-size:13px;font-weight:700;color:var(--green);background:rgba(46,93,75,.12);border-radius:99px;
+    font-size:13px;font-weight:700;color:var(--green);background:color-mix(in srgb, var(--green) 13%, transparent);border-radius:99px;
     margin-left:9px;white-space:nowrap;vertical-align:middle}
   .amt:empty{display:none}
-  .card.done .name{text-decoration:line-through;text-decoration-color:rgba(46,93,75,.5);opacity:.6}
+  .card.done .name{text-decoration:line-through;text-decoration-color:color-mix(in srgb, var(--green) 50%, transparent);opacity:.6}
   .meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-  .tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;background:rgba(30,42,36,.06);color:var(--ink-soft);white-space:nowrap}
-  .tag.dose{background:rgba(46,93,75,.1);color:var(--green)}
-  .tag.course{background:rgba(30,42,36,.09);color:var(--ink);font-weight:700}
+  .tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;background:color-mix(in srgb, var(--ink) 7%, transparent);color:var(--ink-soft);white-space:nowrap}
+  .tag.dose{background:color-mix(in srgb, var(--green) 11%, transparent);color:var(--green)}
+  .tag.course{background:color-mix(in srgb, var(--ink) 9%, transparent);color:var(--ink);font-weight:700}
   .tag.day{background:transparent;border:1px solid var(--line);color:var(--ink-soft)}
-  .tag.dep{background:rgba(139,92,184,.12);color:#6C3F96}
+  .tag.dep{background:color-mix(in srgb, var(--wait) 14%, transparent);color:var(--dep-ink)}
   .note{font-size:12px;color:var(--clay);margin-top:6px;font-style:italic;line-height:1.35}
 
   /* simple view — the checklist keeps only the name and the amount */
@@ -145,16 +165,16 @@
   body.detailed #day .card .meta{display:flex}
   body.detailed #day .card .note{display:block}
   body.detailed #day .card .track{display:block}
-  .track{height:3px;border-radius:99px;background:rgba(30,42,36,.1);margin-top:8px;overflow:hidden}
+  .track{height:3px;border-radius:99px;background:color-mix(in srgb, var(--ink) 10%, transparent);margin-top:8px;overflow:hidden}
   .track i{display:block;height:100%;background:var(--green-dim);border-radius:99px}
 
   .check{flex:0 0 auto;align-self:center;width:40px;height:40px;border-radius:50%;
-    border:2px solid rgba(30,42,36,.2);background:transparent;cursor:pointer;display:grid;place-items:center;
+    border:2px solid color-mix(in srgb, var(--ink) 22%, transparent);background:transparent;cursor:pointer;display:grid;place-items:center;
     transition:transform .18s ease,background .18s ease,border-color .18s ease}
   .check:active{transform:scale(.9)}
-  .check svg{width:19px;height:19px;stroke:rgba(30,42,36,.25);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke .18s}
+  .check svg{width:19px;height:19px;stroke:color-mix(in srgb, var(--ink) 25%, transparent);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke .18s}
   .card.done .check{background:var(--green);border-color:var(--green)}
-  .card.done .check svg{stroke:#fff;animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+  .card.done .check svg{stroke:var(--on-accent);animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
   @keyframes pop{from{transform:scale(.4)}to{transform:none}}
 
   /* ---- setup rows ---- */
@@ -191,7 +211,7 @@
   .empty{padding:16px;color:var(--ink-soft);border:1px dashed var(--line);border-radius:14px;font-size:13.5px;text-align:center;margin-top:8px}
 
   .fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom));z-index:20;
-    background:var(--green);color:#F7F3EA;border:none;font-family:"Karla",sans-serif;font-weight:700;font-size:15px;
+    background:var(--green);color:var(--on-accent);border:none;font-family:"Karla",sans-serif;font-weight:700;font-size:15px;
     padding:15px 30px;border-radius:99px;cursor:pointer;box-shadow:0 10px 26px -8px rgba(30,42,36,.55);transition:transform .18s ease}
   .fab:active{transform:translateX(-50%) scale(.96)}
 
@@ -218,7 +238,7 @@
   select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,93,75,.14)}
   input[type=text],input[type=number],input[type=date]{width:100%;font-family:inherit;font-size:16px;color:var(--ink);background:var(--paper);
     border:1px solid var(--line);border-radius:12px;padding:11px 13px;outline:none;transition:border-color .2s,box-shadow .2s}
-  input:disabled{opacity:.5;background:rgba(30,42,36,.05)}
+  input:disabled{opacity:.5;background:color-mix(in srgb, var(--ink) 5%, transparent)}
   input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,93,75,.14)}
   .field{margin-bottom:14px}
   .row{display:flex;gap:10px}
@@ -227,25 +247,31 @@
   .seg{display:flex;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:4px}
   .seg button{flex:1;font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 4px;border:none;border-radius:9px;
     background:transparent;color:var(--ink-soft);cursor:pointer;transition:background .2s,color .2s}
-  .seg button.on{background:var(--green);color:#F7F3EA}
-  .seg.meals button.on{background:var(--ochre);color:#FBF7EF}
-  .seg.rel button[data-v=before].on{background:var(--before);color:#FBF7EF}
+  .seg button.on{background:var(--green);color:var(--on-accent)}
+  .seg.meals button.on{background:var(--ochre);color:var(--on-accent)}
+  .seg.rel button[data-v=before].on{background:var(--before);color:var(--on-accent)}
   .seg.rel.gapped button[data-v=before].on{background:var(--bwait)}
-  .seg.rel button[data-v=with].on{background:var(--withm);color:#FBF7EF}
-  .seg.rel button[data-v=after].on{background:var(--clay);color:#FBF7EF}
+  .seg.rel button[data-v=with].on{background:var(--withm);color:var(--on-accent)}
+  .seg.rel button[data-v=after].on{background:var(--clay);color:var(--on-accent)}
 
   .gap-opts{display:flex;gap:6px;margin-top:8px}
   .gap-opts button{flex:1;font-family:inherit;font-size:13px;font-weight:600;padding:9px 4px;border-radius:99px;cursor:pointer;white-space:nowrap;
     background:var(--paper);border:1px solid var(--line);color:var(--ink-soft);transition:all .18s}
-  .gap-opts button.on{background:rgba(139,92,184,.16);border-color:rgba(139,92,184,.5);color:#6C3F96}
+  .gap-opts button.on{background:color-mix(in srgb, var(--wait) 16%, transparent);border-color:color-mix(in srgb, var(--wait) 50%, transparent);color:var(--dep-ink)}
   .hint{font-size:12px;color:var(--ink-soft);margin-top:7px}
 
   .btn{width:100%;font-family:inherit;font-weight:700;font-size:15.5px;padding:13px;border-radius:13px;border:none;cursor:pointer;margin-top:4px;transition:transform .15s ease}
   .btn:active{transform:scale(.98)}
-  .btn.primary{background:var(--green);color:#F7F3EA}
+  .btn.primary{background:var(--green);color:var(--on-accent)}
   .btn.cancel{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line);margin-top:8px}
-  .btn.ghost{background:transparent;color:var(--clay);border:1px solid rgba(168,80,60,.35);margin-top:8px}
+  .btn.ghost{background:transparent;color:var(--clay);border:1px solid color-mix(in srgb, var(--clay) 40%, transparent);margin-top:8px}
   .btn.reset{background:transparent;color:var(--ink-soft);border:1px dashed var(--line);margin-top:20px;font-size:14px}
+  .sync-code{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--paper-2);
+    border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
+  .sync-code b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14.5px;letter-spacing:.03em;word-break:break-all}
+  .sync-code span{font-size:12px;color:var(--ink-soft);display:block;margin-top:3px}
+  .btn-mini{flex:0 0 auto;font-family:inherit;font-weight:700;font-size:13px;padding:8px 14px;border-radius:99px;
+    border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
   footer{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:30px;opacity:.75}
 </style>
 </head>
@@ -258,6 +284,7 @@
       <h1 id="title">Today's <em>meds</em></h1>
     </div>
     <div class="icons">
+      <button class="icon-btn" id="mode" aria-label="Switch to dark theme"></button>
       <button class="icon-btn" id="eye" aria-label="Show details"></button>
       <button class="icon-btn" id="gear" aria-label="Configuration"></button>
     </div>
@@ -282,6 +309,8 @@
 <div class="view" id="viewSetup">
   <button class="btn trip" id="tripBtn">Travel calculator — what to pack</button>
   <div id="setup"></div>
+  <div class="sec-head"><h2>Sync</h2><span class="rule"></span></div>
+  <div id="syncBox"></div>
   <button class="btn reset" id="reset">Reset to the original prescription</button>
 </div>
 
@@ -398,7 +427,7 @@ const store = {
     try { localStorage.setItem(k, v); } catch(e){}
   }
 };
-const K_MEDS='meds:v3', K_LOG='medlog:v3', K_UI='medui:v1';
+const K_MEDS='meds:v3', K_LOG='medlog:v4', K_UI='medui:v1', K_SYNC='medsync:v1';
 const MEALS = [
   { id:'breakfast', label:'Breakfast' },
   { id:'lunch',     label:'Lunch' },
@@ -469,23 +498,41 @@ const seedMeds = () => SEED.map((s,i) => ({
 }));
 
 /* ---------------- state ---------------- */
-let meds = [], log = {}, ui = { tab:'today', meal:'breakfast', detail:false }, draft = null;
+let meds = [], log = {}, ui = { tab:'today', meal:'breakfast', detail:false, theme:'light' }, draft = null;
+let sync = { code:null, medsTs:null, last:null, err:null };   /* last/err are per-session, not stored */
 
 async function load(){
   const raw = await store.get(K_MEDS);
   if (raw == null){ meds = seedMeds(); await saveMeds(); }
   else { try { meds = JSON.parse(raw); } catch(e){ meds = []; } }
-  try { log = JSON.parse(await store.get(K_LOG) || '{}'); } catch(e){ log = {}; }
+  try { log = JSON.parse(await store.get(K_LOG) || 'null'); } catch(e){ log = null; }
+  if (!log){
+    /* first run on v4 — carry over a v3 log (plain arrays of keys) if one exists */
+    log = {};
+    try {
+      const old = JSON.parse(await store.get('medlog:v3') || '{}');
+      const t = new Date().toISOString();
+      Object.keys(old).forEach(d => {
+        log[d] = {};
+        (old[d] || []).forEach(key => log[d][key] = { t, on:true });
+      });
+    } catch(e){}
+  }
   try { ui = Object.assign(ui, JSON.parse(await store.get(K_UI) || '{}')); } catch(e){}
+  try { Object.assign(sync, JSON.parse(await store.get(K_SYNC) || '{}')); } catch(e){}
   prune();
   /* open on the meal that's closest to now */
   const h = new Date().getHours();
   ui.meal = h < 11 ? 'breakfast' : (h < 17 ? 'lunch' : 'dinner');
-  paintFilters(); paintDetail(); setTab('today'); render();   /* always open on the checklist */
+  paintFilters(); paintDetail(); paintTheme(); setTab('today'); render();   /* always open on the checklist */
+  paintSync(); pullSync();
 }
 function prune(){ const k = Object.keys(log).sort(); while (k.length > 60) delete log[k.shift()]; }
-async function saveMeds(){ await store.set(K_MEDS, JSON.stringify(meds)); }
-async function saveLog(){ prune(); await store.set(K_LOG, JSON.stringify(log)); }
+async function saveMeds(){
+  sync.medsTs = new Date().toISOString(); saveSyncMeta();
+  await store.set(K_MEDS, JSON.stringify(meds)); pushSoon();
+}
+async function saveLog(){ prune(); await store.set(K_LOG, JSON.stringify(log)); pushSoon(); }
 async function saveUI(){ await store.set(K_UI, JSON.stringify(ui)); }
 
 /* ---------------- labels ---------------- */
@@ -542,7 +589,7 @@ function render(){
   document.getElementById('date').textContent = d.toLocaleDateString(undefined,{weekday:'long', day:'numeric', month:'long'});
 
   const active = meds.filter(isActive);
-  const taken = log[todayKey()] || [];
+  const taken = takenOn(todayKey());
 
   const dayEl = document.getElementById('day');
   dayEl.innerHTML = '';
@@ -580,7 +627,7 @@ function render(){
 /* recomputes the progress bar and the per-meal counters without touching the cards */
 function updateCounts(){
   const active = meds.filter(isActive);
-  const taken = log[todayKey()] || [];
+  const taken = takenOn(todayKey());
   const meal = MEALS.find(x => x.id === ui.meal) || MEALS[0];
 
   const list = active.filter(m => (m.meals||[]).includes(meal.id));
@@ -620,14 +667,17 @@ function doseCard(m, mealId, taken, i){
   return el;
 }
 
+/* the log keeps every tick AND untick with its time, so devices can merge:
+   per entry, the newest write wins — an untick beats the older tick it removes */
+const takenOn = d => { const day = log[d] || {}; return Object.keys(day).filter(k => day[k] && day[k].on); };
+
 /* silent tick: flips this one card, refreshes the counters, saves in the background.
    No re-render, so nothing re-animates and the page doesn't jump. */
 function toggle(key, el){
   const k = todayKey();
-  log[k] = log[k] || [];
-  const i = log[k].indexOf(key);
-  const nowDone = i < 0;
-  if (i >= 0) log[k].splice(i,1); else log[k].push(key);
+  const day = log[k] = log[k] || {};
+  const nowDone = !(day[key] && day[key].on);
+  day[key] = { t: new Date().toISOString(), on: nowDone };
   if (el) el.classList.toggle('done', nowDone);
   updateCounts();
   saveLog();
@@ -778,6 +828,26 @@ function paintDetail(){
 }
 document.getElementById('eye').onclick = () => { ui.detail = !ui.detail; saveUI(); paintDetail(); };
 
+/* light ⇄ dark — light is the default, the choice is saved per device */
+const ICON_MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+  '<path d="M20.4 14.2A8.5 8.5 0 0 1 9.8 3.6a8.5 8.5 0 1 0 10.6 10.6z"/></svg>';
+const ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+  '<circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>' +
+  '<line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="6.3" y2="6.3"/>' +
+  '<line x1="17.7" y1="17.7" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.1" y2="4.9"/></svg>';
+function paintTheme(){
+  const dark = ui.theme === 'dark';
+  document.documentElement.classList.toggle('dark', dark);
+  const b = document.getElementById('mode');
+  b.innerHTML = dark ? ICON_SUN : ICON_MOON;
+  b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#151A17' : '#F3EDE1');
+}
+document.getElementById('mode').onclick = () => {
+  ui.theme = ui.theme === 'dark' ? 'light' : 'dark';
+  saveUI(); paintTheme();
+};
+
 function setTab(t){
   ui.tab = t; saveUI();
   const today = t === 'today';
@@ -907,6 +977,120 @@ document.getElementById('reset').onclick = async () => {
   if (!confirm('Replace everything with the original prescription list? Your edits will be lost.')) return;
   meds = seedMeds(); await saveMeds(); render();
 };
+
+/* ---------------- sync — Vercel function + Neon (see api/sync.js) ----------------
+   Offline-first: this device's copy is what the app runs on; the server is a
+   meeting point for devices holding the same code. Meds are last-write-wins on
+   one timestamp for the whole list; the tick log merges per entry, newest write
+   wins, which is why unticks carry their own timestamped record. */
+let syncTimer = null;
+
+function newSyncCode(){
+  const A = 'abcdefghjkmnpqrstuvwxyz23456789';   /* no 0/O/1/l/i confusables */
+  const b = crypto.getRandomValues(new Uint8Array(12));
+  let s = ''; b.forEach(x => s += A[x % A.length]);
+  return 'doses-' + s.slice(0,6) + '-' + s.slice(6);
+}
+async function saveSyncMeta(){ await store.set(K_SYNC, JSON.stringify({ code:sync.code, medsTs:sync.medsTs })); }
+
+function mergeLog(a, b){
+  const out = {};
+  [a, b].forEach(src => Object.keys(src || {}).forEach(d => {
+    const day = out[d] = out[d] || {};
+    const sd = src[d] || {};
+    Object.keys(sd).forEach(key => {
+      if (!day[key] || (sd[key].t || '') > (day[key].t || '')) day[key] = sd[key];
+    });
+  }));
+  return out;
+}
+
+function pushSoon(){ if (!sync.code) return; clearTimeout(syncTimer); syncTimer = setTimeout(() => { syncTimer = null; pushSync(); }, 1200); }
+
+async function pushSync(){
+  if (!sync.code) return;
+  try {
+    const r = await fetch('/api/sync', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ code: sync.code, meds, log, medsUpdated: sync.medsTs }) });
+    if (r.status === 503) throw 'nodb';
+    if (!r.ok) throw 'net';
+    sync.last = new Date().toISOString(); sync.err = null;
+  } catch(e){ sync.err = e === 'nodb' ? 'nodb' : 'net'; }
+  paintSync();
+}
+
+async function pullSync(){
+  if (!sync.code) return;
+  if (syncTimer){ clearTimeout(syncTimer); syncTimer = null; await pushSync(); }
+  try {
+    const r = await fetch('/api/sync?code=' + encodeURIComponent(sync.code));
+    if (r.status === 503) throw 'nodb';
+    if (!r.ok) throw 'net';
+    const row = await r.json();
+    let changed = false, needPush = !row;
+    if (row){
+      const sTs = row.meds_updated || '';
+      if (sTs > (sync.medsTs || '') && JSON.stringify(row.meds || []) !== JSON.stringify(meds)){
+        meds = row.meds || []; sync.medsTs = sTs; changed = true;
+        await store.set(K_MEDS, JSON.stringify(meds));   /* adopt without bumping the timestamp */
+      } else if ((sync.medsTs || '') > sTs) needPush = true;
+      const merged = mergeLog(log, row.log || {});
+      if (JSON.stringify(merged) !== JSON.stringify(log)){
+        log = merged; prune(); changed = true;
+        await store.set(K_LOG, JSON.stringify(log));
+      }
+      if (JSON.stringify(log) !== JSON.stringify(row.log || {})) needPush = true;
+    }
+    sync.last = new Date().toISOString(); sync.err = null;
+    await saveSyncMeta();
+    if (needPush) await pushSync();
+    if (changed) render();
+  } catch(e){ sync.err = e === 'nodb' ? 'nodb' : 'net'; }
+  paintSync();
+}
+
+function paintSync(){
+  const el = document.getElementById('syncBox');
+  if (!sync.code){
+    el.innerHTML =
+      '<p class="hint" style="margin:0 0 10px">Saved only on this device for now. Sync keeps a copy on the server and shares it with any device that has the code.</p>' +
+      '<button class="btn trip" id="syncOn">Turn on sync — get a code</button>' +
+      '<button class="btn cancel" id="syncJoin" style="margin-top:0">I already have a code</button>';
+    document.getElementById('syncOn').onclick = async () => {
+      sync.code = newSyncCode();
+      sync.medsTs = sync.medsTs || new Date().toISOString();
+      await saveSyncMeta(); paintSync(); pullSync();
+    };
+    document.getElementById('syncJoin').onclick = async () => {
+      const c = (prompt('Enter the sync code from your other device') || '').trim().toLowerCase();
+      if (!c) return;
+      sync.code = c; sync.medsTs = null;   /* the other device's list wins */
+      await saveSyncMeta(); paintSync(); pullSync();
+    };
+  } else {
+    const status = sync.err === 'nodb' ? 'The deployment has no database linked yet'
+      : sync.err ? "Can't reach the server — will retry"
+      : sync.last ? 'Synced at ' + new Date(sync.last).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})
+      : 'Connecting…';
+    el.innerHTML =
+      '<div class="sync-code"><div><b></b><span></span></div><button class="btn-mini" id="syncCopy">Copy</button></div>' +
+      '<button class="btn ghost" id="syncOff" style="margin-top:0">Turn off sync on this device</button>';
+    el.querySelector('b').textContent = sync.code;
+    el.querySelector('span').textContent = status;
+    document.getElementById('syncCopy').onclick = () => {
+      (navigator.clipboard ? navigator.clipboard.writeText(sync.code) : Promise.reject())
+        .then(() => { document.getElementById('syncCopy').textContent = 'Copied'; setTimeout(paintSync, 1200); })
+        .catch(() => prompt('Copy the code:', sync.code));
+    };
+    document.getElementById('syncOff').onclick = async () => {
+      if (!confirm('Stop syncing on this device? The list stays here and on the server; other devices keep working.')) return;
+      sync.code = null; await saveSyncMeta(); paintSync();
+    };
+  }
+}
+
+/* catch up whenever the app comes back to the foreground */
+document.addEventListener('visibilitychange', () => { if (!document.hidden) pullSync(); });
 
 /* offline support — only meaningful when served over https */
 if ('serviceWorker' in navigator && location.protocol === 'https:'){
