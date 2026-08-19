@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3EDE1">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Doses">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<link rel="icon" href="./icon-192.png">
+<title>Doses — medication tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3EDE1; --paper-2:#FBF7EF;
+    --ink:#1E2A24; --ink-soft:#5C6A61;
+    --green:#2E5D4B; --green-dim:#8FA79A;
+    --ochre:#C1763C; --clay:#A8503C;
+    --bwait:#3F7EA6;       /* wait, then the meal */
+    --before:#C1763C;      /* just before the meal */
+    --withm:#2E5D4B;       /* with / right after */
+    --wait:#8B5CB8;        /* wait after the meal */
+    --line:rgba(30,42,36,.14);
+    --shadow:0 1px 0 rgba(30,42,36,.05), 0 10px 24px -14px rgba(30,42,36,.4);
+    --r:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;color-scheme:light only;forced-color-adjust:none;-webkit-text-size-adjust:100%}
+  html{background:#F3EDE1}
+  /* if anything in the host asks for dark, re-assert the paper palette */
+  @media (prefers-color-scheme: dark){
+    html,body{background-color:#F3EDE1 !important;color:#1E2A24 !important}
+    .card,.med-row,.sheet,.icon-btn,.filters button.on{background-color:#FBF7EF !important;color:#1E2A24 !important}
+    input,select,.seg,.gap-opts button{background-color:#F3EDE1 !important;color:#1E2A24 !important}
+    .name,.n,h1,h2,h3{color:#1E2A24 !important}
+  }
+  body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(120% 60% at 100% 0%, rgba(193,118,60,.12) 0%, transparent 60%),
+      radial-gradient(90% 50% at 0% 100%, rgba(46,93,75,.12) 0%, transparent 65%);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:"Karla",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:16px; line-height:1.45; min-height:100dvh;
+    padding:calc(22px + env(safe-area-inset-top)) 18px calc(120px + env(safe-area-inset-bottom));
+    max-width:560px; margin:0 auto;
+  }
+  header{margin-bottom:16px}
+  .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--green);font-weight:700;margin:0 0 6px}
+  h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:34px;line-height:1;margin:0;letter-spacing:-.02em}
+  h1 em{font-style:italic;color:var(--ochre)}
+  .date{color:var(--ink-soft);font-size:14px;margin-top:8px}
+  .bar{margin-top:14px}
+  .bar-track{height:6px;background:rgba(30,42,36,.1);border-radius:99px;overflow:hidden}
+  .bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--green-dim));border-radius:99px;transition:width .45s cubic-bezier(.2,.8,.2,1)}
+  .bar-label{font-size:12.5px;color:var(--ink-soft);margin-top:7px}
+
+  /* ---- tabs ---- */
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+  .icons{display:flex;gap:8px;flex:0 0 auto}
+  .icon-btn{flex:0 0 auto;width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--paper-2);
+    color:var(--ink);cursor:pointer;display:grid;place-items:center;box-shadow:var(--shadow);transition:transform .18s ease,background .2s}
+  .icon-btn:active{transform:scale(.93)}
+  .icon-btn.on{background:var(--green);color:#F7F3EA;border-color:var(--green)}
+  .icon-btn svg{width:21px;height:21px}
+
+  .filters{display:flex;gap:8px;margin:18px 0 2px}
+  .filters button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;font-size:13.5px;
+    font-weight:700;padding:10px 4px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);
+    cursor:pointer;transition:all .2s}
+  .filters button .dot{opacity:.35;transition:opacity .2s}
+  .filters button.on{background:var(--paper-2);color:var(--ink);box-shadow:0 2px 8px -4px rgba(30,42,36,.4)}
+  .filters button.on{border-color:rgba(30,42,36,.3)}
+  .filters button.on .dot{opacity:1}
+  .filters .badge{min-width:19px;height:19px;padding:0 5px;border-radius:99px;background:rgba(30,42,36,.12);
+    color:var(--ink-soft);font-size:11px;font-weight:700;display:grid;place-items:center}
+  .filters button.on .badge{background:var(--green);color:#F7F3EA}
+  .filters .badge.clear{background:transparent;color:var(--green);font-size:13px}
+  .filters .badge:empty{display:none}
+  .view{display:none}
+  .view.on{display:block;animation:fade .3s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ---- meal day list ---- */
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:0 0 auto}
+  .dot.breakfast{background:var(--ochre)}
+  .dot.lunch{background:var(--green)}
+  .dot.dinner{background:var(--clay)}
+  .dot.soon{background:var(--green-dim)}
+  .dot.fin{background:rgba(30,42,36,.25)}
+
+  /* ---- timing group ---- */
+  .grp-head{display:flex;align-items:center;gap:8px;margin:22px 2px 10px}
+  .grp-head .pip{width:16px;height:3px;border-radius:99px}
+  .grp-head span{font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+  .g-bwait .pip,.g-bwait span{color:var(--bwait)}  .g-bwait .pip{background:var(--bwait)}
+  .g-before .pip,.g-before span{color:var(--before)} .g-before .pip{background:var(--before)}
+  .g-with .pip,.g-with span{color:var(--withm)}    .g-with .pip{background:var(--withm)}
+  .g-wait .pip,.g-wait span{color:var(--wait)}     .g-wait .pip{background:var(--wait)}
+
+  /* ---- dose card ---- */
+  .card{display:flex;align-items:center;gap:12px;background:var(--paper-2);border:1px solid var(--line);
+    border-radius:14px;padding:9px 10px 9px 14px;margin-bottom:7px;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;animation:rise .4s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px}
+  .card.g-bwait::before{background:var(--bwait)}
+  .card.g-before::before{background:var(--before)}
+  .card.g-with::before{background:var(--withm)}
+  .card.g-wait::before{background:var(--wait)}
+  .card.g-bwait{background:linear-gradient(90deg,rgba(63,126,166,.08),transparent 55%),var(--paper-2)}
+  .card.g-before{background:linear-gradient(90deg,rgba(193,118,60,.07),transparent 55%),var(--paper-2)}
+  .card.g-with{background:linear-gradient(90deg,rgba(46,93,75,.07),transparent 55%),var(--paper-2)}
+  .card.g-wait{background:linear-gradient(90deg,rgba(139,92,184,.08),transparent 55%),var(--paper-2)}
+  .card.done{background:rgba(46,93,75,.07);border-color:rgba(46,93,75,.22)}
+  .card.done::before{background:var(--green)}
+
+  .body{flex:1;min-width:0}
+  .name{display:flex;align-items:center;font-weight:700;font-size:16.5px;letter-spacing:-.01em;word-break:break-word}
+  .amt{display:inline-grid;place-items:center;text-decoration:none;min-width:24px;height:24px;padding:0 7px;
+    font-size:13px;font-weight:700;color:var(--green);background:rgba(46,93,75,.12);border-radius:99px;
+    margin-left:9px;white-space:nowrap;vertical-align:middle}
+  .amt:empty{display:none}
+  .card.done .name{text-decoration:line-through;text-decoration-color:rgba(46,93,75,.5);opacity:.6}
+  .meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+  .tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;background:rgba(30,42,36,.06);color:var(--ink-soft);white-space:nowrap}
+  .tag.dose{background:rgba(46,93,75,.1);color:var(--green)}
+  .tag.course{background:rgba(30,42,36,.09);color:var(--ink);font-weight:700}
+  .tag.day{background:transparent;border:1px solid var(--line);color:var(--ink-soft)}
+  .tag.dep{background:rgba(139,92,184,.12);color:#6C3F96}
+  .note{font-size:12px;color:var(--clay);margin-top:6px;font-style:italic;line-height:1.35}
+
+  /* simple view — the checklist keeps only the name and the amount */
+  #day .card .meta,
+  #day .card .note,
+  #day .card .track{display:none}
+  body.detailed #day .card .meta{display:flex}
+  body.detailed #day .card .note{display:block}
+  body.detailed #day .card .track{display:block}
+  .track{height:3px;border-radius:99px;background:rgba(30,42,36,.1);margin-top:8px;overflow:hidden}
+  .track i{display:block;height:100%;background:var(--green-dim);border-radius:99px}
+
+  .check{flex:0 0 auto;align-self:center;width:40px;height:40px;border-radius:50%;
+    border:2px solid rgba(30,42,36,.2);background:transparent;cursor:pointer;display:grid;place-items:center;
+    transition:transform .18s ease,background .18s ease,border-color .18s ease}
+  .check:active{transform:scale(.9)}
+  .check svg{width:19px;height:19px;stroke:rgba(30,42,36,.25);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke .18s}
+  .card.done .check{background:var(--green);border-color:var(--green)}
+  .card.done .check svg{stroke:#fff;animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes pop{from{transform:scale(.4)}to{transform:none}}
+
+  /* ---- setup rows ---- */
+  .sec-head{display:flex;align-items:center;gap:10px;margin:26px 0 10px}
+  .sec-head h2{font-family:"Fraunces",serif;font-weight:600;font-size:15px;letter-spacing:.06em;text-transform:uppercase;margin:0}
+  .sec-head .rule{flex:1;height:1px;background:var(--line)}
+  .sec-head .count{font-size:12px;color:var(--ink-soft)}
+  .med-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--paper-2);
+    border:1px solid var(--line);border-left:5px solid var(--line);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:transform .15s ease}
+  .med-row.g-bwait{border-left-color:var(--bwait)}
+  .med-row.g-before{border-left-color:var(--before)}
+  .med-row.g-with{border-left-color:var(--withm)}
+  .med-row.g-wait{border-left-color:var(--wait)}
+  .med-row:active{transform:scale(.99)}
+  .med-row .name{font-size:15.5px}
+  .med-row.dim{opacity:.55}
+  .chev{color:var(--green-dim);font-size:20px;line-height:1}
+
+  .btn.trip{background:var(--paper-2);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);margin:0 0 8px}
+  .pack{display:flex;align-items:center;gap:14px;background:var(--paper-2);border:1px solid var(--line);
+    border-left:5px solid var(--green-dim);border-radius:14px;padding:12px 14px;margin-bottom:8px;
+    animation:rise .4s cubic-bezier(.2,.8,.2,1) both}
+  .pack .qty{font-family:"Fraunces",Georgia,serif;font-size:26px;font-weight:600;line-height:1;min-width:44px;text-align:right;color:var(--green)}
+  .pack .qty small{display:block;font-family:"Karla",sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-soft);margin-top:4px;text-align:right}
+  .pack .who{flex:1;min-width:0}
+  .pack .who b{font-size:15.5px;font-weight:700;display:block;word-break:break-word}
+  .pack .who span{font-size:12px;color:var(--ink-soft)}
+  .pack.partial{border-left-color:var(--ochre)}
+  .pack.partial .who span{color:var(--ochre)}
+  .totals{padding:14px 16px;border:1px dashed var(--line);border-radius:14px;margin-bottom:14px;
+    font-size:14px;font-weight:700;color:var(--ink);line-height:1.6}
+  .totals em{font-style:normal;color:var(--ink-soft);font-weight:600;font-size:12px;display:block;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+  .empty{padding:16px;color:var(--ink-soft);border:1px dashed var(--line);border-radius:14px;font-size:13.5px;text-align:center;margin-top:8px}
+
+  .fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom));z-index:20;
+    background:var(--green);color:#F7F3EA;border:none;font-family:"Karla",sans-serif;font-weight:700;font-size:15px;
+    padding:15px 30px;border-radius:99px;cursor:pointer;box-shadow:0 10px 26px -8px rgba(30,42,36,.55);transition:transform .18s ease}
+  .fab:active{transform:translateX(-50%) scale(.96)}
+
+  .scrim{position:fixed;inset:0;background:rgba(30,42,36,.45);backdrop-filter:blur(3px);z-index:30;opacity:0;pointer-events:none;transition:opacity .28s ease}
+  .scrim.open{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;left:50%;top:50%;z-index:31;background:var(--paper-2);border-radius:22px;
+    padding:18px 18px 20px;width:calc(100% - 28px);max-width:440px;max-height:88dvh;overflow-y:auto;
+    scrollbar-width:none;-ms-overflow-style:none;
+    transform:translate(-50%,-50%) scale(.94);opacity:0;pointer-events:none;
+    transition:transform .28s cubic-bezier(.2,.9,.25,1),opacity .2s ease;
+    box-shadow:0 30px 70px -25px rgba(30,42,36,.6), 0 0 0 1px var(--line)}
+  .sheet.open{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+  .sheet::-webkit-scrollbar{width:0;height:0;display:none}
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
+  .sheet h3{font-family:"Fraunces",serif;font-size:22px;font-weight:600;margin:0}
+  .x{flex:0 0 auto;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--paper);
+    color:var(--ink-soft);font-family:inherit;font-size:19px;line-height:1;cursor:pointer;display:grid;place-items:center}
+
+  label{display:block;font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);margin:0 0 6px}
+  select{width:100%;font-family:inherit;font-size:15.5px;color:var(--ink);background:var(--paper);border:1px solid var(--line);
+    border-radius:12px;padding:11px 13px;outline:none;-webkit-appearance:none;appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--ink-soft) 50%),linear-gradient(135deg,var(--ink-soft) 50%,transparent 50%);
+    background-position:calc(100% - 18px) calc(50% + 2px),calc(100% - 13px) calc(50% + 2px);background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,93,75,.14)}
+  input[type=text],input[type=number],input[type=date]{width:100%;font-family:inherit;font-size:16px;color:var(--ink);background:var(--paper);
+    border:1px solid var(--line);border-radius:12px;padding:11px 13px;outline:none;transition:border-color .2s,box-shadow .2s}
+  input:disabled{opacity:.5;background:rgba(30,42,36,.05)}
+  input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,93,75,.14)}
+  .field{margin-bottom:14px}
+  .row{display:flex;gap:10px}
+  .row>*{flex:1;min-width:0}
+
+  .seg{display:flex;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:4px}
+  .seg button{flex:1;font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 4px;border:none;border-radius:9px;
+    background:transparent;color:var(--ink-soft);cursor:pointer;transition:background .2s,color .2s}
+  .seg button.on{background:var(--green);color:#F7F3EA}
+  .seg.meals button.on{background:var(--ochre);color:#FBF7EF}
+  .seg.rel button[data-v=before].on{background:var(--before);color:#FBF7EF}
+  .seg.rel.gapped button[data-v=before].on{background:var(--bwait)}
+  .seg.rel button[data-v=with].on{background:var(--withm);color:#FBF7EF}
+  .seg.rel button[data-v=after].on{background:var(--clay);color:#FBF7EF}
+
+  .gap-opts{display:flex;gap:6px;margin-top:8px}
+  .gap-opts button{flex:1;font-family:inherit;font-size:13px;font-weight:600;padding:9px 4px;border-radius:99px;cursor:pointer;white-space:nowrap;
+    background:var(--paper);border:1px solid var(--line);color:var(--ink-soft);transition:all .18s}
+  .gap-opts button.on{background:rgba(139,92,184,.16);border-color:rgba(139,92,184,.5);color:#6C3F96}
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:7px}
+
+  .btn{width:100%;font-family:inherit;font-weight:700;font-size:15.5px;padding:13px;border-radius:13px;border:none;cursor:pointer;margin-top:4px;transition:transform .15s ease}
+  .btn:active{transform:scale(.98)}
+  .btn.primary{background:var(--green);color:#F7F3EA}
+  .btn.cancel{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line);margin-top:8px}
+  .btn.ghost{background:transparent;color:var(--clay);border:1px solid rgba(168,80,60,.35);margin-top:8px}
+  .btn.reset{background:transparent;color:var(--ink-soft);border:1px dashed var(--line);margin-top:20px;font-size:14px}
+  footer{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:30px;opacity:.75}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <div>
+      <p class="eyebrow" id="eyebrow">Daily doses</p>
+      <h1 id="title">Today's <em>meds</em></h1>
+    </div>
+    <div class="icons">
+      <button class="icon-btn" id="eye" aria-label="Show details"></button>
+      <button class="icon-btn" id="gear" aria-label="Configuration"></button>
+    </div>
+  </div>
+  <p class="date" id="date"></p>
+  <div class="bar" id="barWrap">
+    <div class="bar-track"><div class="bar-fill" id="fill"></div></div>
+    <p class="bar-label" id="progress">—</p>
+  </div>
+</header>
+
+<div class="filters" id="filters">
+  <button data-v="breakfast"><span class="dot breakfast"></span>Breakfast<span class="badge"></span></button>
+  <button data-v="lunch"><span class="dot lunch"></span>Lunch<span class="badge"></span></button>
+  <button data-v="dinner"><span class="dot dinner"></span>Dinner<span class="badge"></span></button>
+</div>
+
+<div class="view on" id="viewToday">
+  <div id="day"></div>
+</div>
+
+<div class="view" id="viewSetup">
+  <button class="btn trip" id="tripBtn">Travel calculator — what to pack</button>
+  <div id="setup"></div>
+  <button class="btn reset" id="reset">Reset to the original prescription</button>
+</div>
+
+<div class="view" id="viewTrip">
+  <div class="field">
+    <div class="row">
+      <div>
+        <label for="tStart">Leaving on</label>
+        <input type="date" id="tStart">
+      </div>
+      <div>
+        <label for="tDays">How many days</label>
+        <input type="number" id="tDays" min="1" step="1" value="7">
+      </div>
+    </div>
+  </div>
+  <div id="tripOut"></div>
+</div>
+
+<footer>Saved on this device · tap any medication to edit</footer>
+
+<button class="fab" id="addBtn">+ Add medication</button>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-head">
+    <h3 id="sheetTitle">Add medication</h3>
+    <button class="x" id="closeX" aria-label="Close">&times;</button>
+  </div>
+
+  <div class="field">
+    <label for="fName">Medication name</label>
+    <input type="text" id="fName" placeholder="e.g. Amoxicillin" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label for="fDose">Amount per dose</label>
+    <input type="text" id="fDose" placeholder="e.g. 1 tablet · 2 gummies" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label>Take it with which meals?</label>
+    <div class="seg meals" id="segMeals">
+      <button data-v="breakfast">Breakfast</button>
+      <button data-v="lunch">Lunch</button>
+      <button data-v="dinner">Dinner</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Relative to the meal</label>
+    <div class="seg rel" id="segRel">
+      <button data-v="before">Before</button>
+      <button data-v="with">With</button>
+      <button data-v="after">After</button>
+    </div>
+    <div class="gap-opts" id="gapOpts">
+      <button data-v="0">None</button>
+      <button data-v="30">30 min</button>
+      <button data-v="60">1 hr</button>
+      <button data-v="120">2 hrs</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="fAfter">Starts after another medication finishes</label>
+    <select id="fAfter"></select>
+    <p class="hint" id="depHint" style="display:none"></p>
+  </div>
+
+  <div class="field">
+    <div class="row">
+      <div>
+        <label for="fStart">Start date</label>
+        <input type="date" id="fStart">
+      </div>
+      <div>
+        <label for="fDays">For how many days</label>
+        <input type="number" id="fDays" min="1" step="1" placeholder="ongoing">
+      </div>
+    </div>
+    <p class="hint">Leave the days empty if you take it with no end date.</p>
+  </div>
+
+  <div class="field">
+    <label for="fCourse">Course / tag</label>
+    <input type="text" id="fCourse" placeholder="e.g. جرثومة · هضم · قولون" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label for="fNote">Note</label>
+    <input type="text" id="fNote" placeholder="optional" autocomplete="off">
+  </div>
+
+  <button class="btn primary" id="save">Save medication</button>
+  <button class="btn cancel" id="cancel">Cancel</button>
+  <button class="btn ghost" id="del" style="display:none">Delete this medication</button>
+</div>
+
+<script>
+/* ---------------- storage ---------------- */
+const MEM = {};
+const store = {
+  async get(k){
+    if (window.storage && window.storage.get){
+      try { const r = await window.storage.get(k, false); if (r && r.value != null) return r.value; } catch(e){}
+    }
+    try { const v = localStorage.getItem(k); if (v != null) return v; } catch(e){}
+    return MEM[k] ?? null;
+  },
+  async set(k, v){
+    MEM[k] = v;
+    if (window.storage && window.storage.set){ try { await window.storage.set(k, v, false); } catch(e){} }
+    try { localStorage.setItem(k, v); } catch(e){}
+  }
+};
+const K_MEDS='meds:v3', K_LOG='medlog:v3', K_UI='medui:v1';
+const MEALS = [
+  { id:'breakfast', label:'Breakfast' },
+  { id:'lunch',     label:'Lunch' },
+  { id:'dinner',    label:'Dinner' }
+];
+/* timing buckets — the colour language of the whole app */
+const gapWord = g => g >= 60 && g % 60 === 0
+  ? (g/60) + (g === 60 ? ' hour' : ' hours')
+  : g + ' minutes';
+/* each heading carries the timing, so the cards don't have to */
+const BUCKETS = [
+  { id:'g-bwait',  test:m => m.rel === 'before' && m.gap > 0,
+    label:g => gapWord(g[0].gap) + ' before the meal' },
+  { id:'g-before', test:m => m.rel === 'before' && !m.gap,
+    label:() => 'Just before the meal' },
+  { id:'g-with',   test:m => m.rel === 'with' || (m.rel === 'after' && !m.gap),
+    label:g => g.every(m => m.rel === 'after') ? 'Right after the meal'
+             : (g.every(m => m.rel === 'with') ? 'With the meal' : 'With / right after') },
+  { id:'g-wait',   test:m => m.rel === 'after' && m.gap > 0,
+    label:g => gapWord(g[0].gap) + ' after the meal' }
+];
+const bucketOf = m => (BUCKETS.find(b => b.test(m)) || BUCKETS[2]).id;
+
+/* ---------------- dates ---------------- */
+const iso = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const todayKey = () => iso(new Date());
+const plusDays = n => { const d = new Date(); d.setDate(d.getDate()+n); return iso(d); };
+const dayDiff = (a,b) => Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00'))/86400000);
+/* a medication can start the day after another one finishes — resolved up the chain */
+function effStart(m, seen){
+  seen = seen || {};
+  if (m.after && !seen[m.id]){
+    seen[m.id] = 1;
+    const dep = meds.find(x => x.id === m.after);
+    if (dep && dep.days){
+      const d = new Date(effStart(dep, seen) + 'T00:00:00');
+      d.setDate(d.getDate() + dep.days);
+      return iso(d);
+    }
+  }
+  return m.start || todayKey();
+}
+const depName = m => { const d = m.after && meds.find(x => x.id === m.after); return d ? d.name : ''; };
+const dayIndex = m => dayDiff(effStart(m), todayKey()) + 1;
+const isActive   = m => { const d = dayIndex(m); return d >= 1 && (!m.days || d <= m.days); };
+const isFuture   = m => dayIndex(m) < 1;
+const isFinished = m => !!m.days && dayIndex(m) > m.days;
+
+/* ---------------- seed ---------------- */
+const SEED = [
+  { name:'Trigastrocare',       dose:'1 tab',    meals:['breakfast','lunch','dinner'], rel:'after',  gap:0,   days:10, off:0,  course:'جرثومة' },
+  { name:'Lanex',               dose:'1 tab',    meals:['lunch'],                      rel:'before', gap:30,  days:30, off:0,  course:'جرثومة' },
+  { name:'Actimar',             dose:'1 tab',    meals:['breakfast','lunch'],          rel:'after',  gap:60,  days:30, off:0,  course:'جرثومة' },
+  { name:'Venigalight gummies', dose:'2 gummies',meals:['breakfast','lunch'],          rel:'before', gap:0,   days:30, off:0,  course:'هضم' },
+  { name:'Jomogestive',         dose:'1 tab',    meals:['breakfast','lunch'],          rel:'after',  gap:0,   days:30, off:0,  course:'هضم' },
+  { name:'Optadrol D3+K2',      dose:'1 tab',    meals:['lunch'],                      rel:'after',  gap:0,   days:30, off:0,  course:'هضم' },
+  { name:'Tweetocalce',         dose:'2 tabs',   meals:['dinner'],                     rel:'after',  gap:0,   days:30, off:0,  course:'هضم' },
+  { name:'Bmelt',               dose:'1 tab',    meals:['breakfast'],                  rel:'after',  gap:0,   days:30, off:0,  course:'هضم' },
+  { name:'Fagellat Forte',      dose:'1 tab',    meals:['breakfast','lunch'],          rel:'after',  gap:120, days:10, off:10, course:'قولون', after:'seed0' },
+  { name:'معدة الأعشاب',         dose:'½ tsp',    meals:['lunch'],                      rel:'after',  gap:60,  days:30, off:10, course:'قولون', after:'seed0' },
+  { name:'Spirulina',           dose:'2 tabs',   meals:['breakfast'],                  rel:'before', gap:0,   days:30, off:20, course:'', note:'Needs doctor confirmation' },
+  { name:'Declopro',            dose:'1 tab',    meals:['breakfast'],                  rel:'after',  gap:0,   days:10, off:0,  course:'' },
+  { name:'Relaxon',             dose:'1 tab',    meals:['dinner'],                     rel:'after',  gap:0,   days:10, off:0,  course:'' }
+];
+const seedMeds = () => SEED.map((s,i) => ({
+  id:'seed'+i, name:s.name, dose:s.dose, meals:s.meals, rel:s.rel, gap:s.gap,
+  days:s.days, start:plusDays(s.off), course:s.course||'', note:s.note||'', after:s.after||null
+}));
+
+/* ---------------- state ---------------- */
+let meds = [], log = {}, ui = { tab:'today', meal:'breakfast', detail:false }, draft = null;
+
+async function load(){
+  const raw = await store.get(K_MEDS);
+  if (raw == null){ meds = seedMeds(); await saveMeds(); }
+  else { try { meds = JSON.parse(raw); } catch(e){ meds = []; } }
+  try { log = JSON.parse(await store.get(K_LOG) || '{}'); } catch(e){ log = {}; }
+  try { ui = Object.assign(ui, JSON.parse(await store.get(K_UI) || '{}')); } catch(e){}
+  prune();
+  /* open on the meal that's closest to now */
+  const h = new Date().getHours();
+  ui.meal = h < 11 ? 'breakfast' : (h < 17 ? 'lunch' : 'dinner');
+  paintFilters(); paintDetail(); setTab('today'); render();   /* always open on the checklist */
+}
+function prune(){ const k = Object.keys(log).sort(); while (k.length > 60) delete log[k.shift()]; }
+async function saveMeds(){ await store.set(K_MEDS, JSON.stringify(meds)); }
+async function saveLog(){ prune(); await store.set(K_LOG, JSON.stringify(log)); }
+async function saveUI(){ await store.set(K_UI, JSON.stringify(ui)); }
+
+/* ---------------- labels ---------------- */
+function whenBig(m){
+  if (m.rel === 'with' || !m.gap) return m.rel === 'with' ? 'With' : (m.rel === 'before' ? 'Before' : 'After');
+  const g = Number(m.gap);
+  if (g >= 60 && g % 60 === 0) return (g/60) + (g === 60 ? ' hour' : ' hours');
+  return g + ' min';
+}
+/* the group heading already says which side of the meal we're on */
+const whenSmall = m => (m.rel === 'with' || !m.gap) ? '' : (m.rel === 'before' ? 'before' : 'after');
+function relLabel(m){
+  if (m.rel === 'with') return 'With food';
+  const g = Number(m.gap) || 0;
+  const w = m.rel === 'before' ? 'before food' : 'after food';
+  if (!g) return m.rel === 'before' ? 'Before food' : 'After food';
+  if (g >= 60 && g % 60 === 0) return (g/60) + (g === 60 ? ' hr ' : ' hrs ') + w;
+  return g + ' min ' + w;
+}
+function dayLabel(m){
+  if (!m.days) return 'Ongoing';
+  const d = dayIndex(m);
+  if (d < 1) return 'Starts in ' + (1-d) + (1-d === 1 ? ' day' : ' days');
+  if (d > m.days) return 'Finished';
+  return 'Day ' + d + ' of ' + m.days + ' · ' + (m.days - d) + ' left';
+}
+function sortInGroup(a,b){
+  if (a.rel === 'before' && b.rel === 'before') return (b.gap||0) - (a.gap||0);
+  return (a.gap||0) - (b.gap||0);
+}
+
+/* ---------------- shared bits ---------------- */
+function metaHTML(m){
+  return '<div class="meta">' +
+    '<span class="tag">' + relLabel(m) + '</span>' +
+    (m.course ? '<span class="tag course"></span>' : '') +
+    (depName(m) ? '<span class="tag dep"></span>' : '') +
+    '<span class="tag day">' + dayLabel(m) + '</span>' +
+  '</div>';
+}
+/* "2 gummies" → "2" for the checklist; the full wording stays in the setup list */
+const amtShort = d => { const m = (d||'').match(/^\s*([\d.,]+|[½¼¾⅓⅔⅛])/); return m ? m[1] : (d||''); };
+function fillMeta(el, m, full){
+  el.querySelector('.n').textContent = m.name;
+  el.querySelector('.amt').textContent = full ? (m.dose || '') : amtShort(m.dose);
+  if (m.course) el.querySelector('.tag.course').textContent = m.course;
+  if (depName(m)) el.querySelector('.tag.dep').textContent = 'after ' + depName(m);
+  if (m.note && el.querySelector('.note')) el.querySelector('.note').textContent = m.note;
+}
+
+/* ---------------- checklist view ---------------- */
+function render(){
+  const d = new Date();
+  document.getElementById('date').textContent = d.toLocaleDateString(undefined,{weekday:'long', day:'numeric', month:'long'});
+
+  const active = meds.filter(isActive);
+  const taken = log[todayKey()] || [];
+
+  const dayEl = document.getElementById('day');
+  dayEl.innerHTML = '';
+  let anim = 0;
+
+  const meal = MEALS.find(x => x.id === ui.meal) || MEALS[0];
+  const list = active.filter(m => (m.meals||[]).includes(meal.id));
+
+  if (!list.length){
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'Nothing to take with ' + meal.label.toLowerCase() + ' today.';
+    dayEl.appendChild(e);
+  } else {
+    BUCKETS.forEach(bk => {
+      const inBucket = list.filter(m => bucketOf(m) === bk.id);
+      if (!inBucket.length) return;
+      const gaps = [...new Set(inBucket.map(m => m.gap || 0))]
+        .sort((a,b) => bk.id === 'g-bwait' ? b - a : a - b);
+      gaps.forEach(g => {
+        const group = inBucket.filter(m => (m.gap||0) === g);
+        const gh = document.createElement('div');
+        gh.className = 'grp-head ' + bk.id;
+        gh.innerHTML = '<i class="pip"></i><span>' + bk.label(group) + '</span>';
+        dayEl.appendChild(gh);
+        group.forEach(m => dayEl.appendChild(doseCard(m, meal.id, taken, anim++)));
+      });
+    });
+  }
+
+  updateCounts();
+  renderSetup();
+}
+
+/* recomputes the progress bar and the per-meal counters without touching the cards */
+function updateCounts(){
+  const active = meds.filter(isActive);
+  const taken = log[todayKey()] || [];
+  const meal = MEALS.find(x => x.id === ui.meal) || MEALS[0];
+
+  const list = active.filter(m => (m.meals||[]).includes(meal.id));
+  const done = list.filter(m => taken.includes(m.id + '|' + meal.id)).length;
+  document.getElementById('fill').style.width = list.length ? (done/list.length*100)+'%' : '0%';
+  document.getElementById('progress').textContent = !list.length
+    ? 'Nothing at ' + meal.label.toLowerCase() + ' today'
+    : (done === list.length ? meal.label + ' is done — nice.'
+                            : done + ' of ' + list.length + ' taken at ' + meal.label.toLowerCase());
+
+  MEALS.forEach(x => {
+    const btn = document.querySelector('#filters button[data-v="' + x.id + '"]');
+    if (!btn) return;
+    const l = active.filter(m => (m.meals||[]).includes(x.id));
+    const left = l.filter(m => !taken.includes(m.id + '|' + x.id)).length;
+    const b = btn.querySelector('.badge');
+    b.textContent = !l.length ? '' : (left ? left : '✓');
+    b.className = 'badge' + (l.length && !left ? ' clear' : '');
+  });
+}
+
+function doseCard(m, mealId, taken, i){
+  const key = m.id + '|' + mealId;
+  const isDone = taken.includes(key);
+  const pct = m.days ? Math.min(100, Math.max(0, dayIndex(m)/m.days*100)) : 0;
+  const el = document.createElement('div');
+  el.className = 'card ' + bucketOf(m) + (isDone ? ' done' : '');
+  el.style.animationDelay = (i*30) + 'ms';
+  el.innerHTML =
+    '<div class="body"><div class="name"><span class="n"></span><span class="amt"></span></div>' + metaHTML(m) +
+      (m.note ? '<div class="note"></div>' : '') +
+      (m.days ? '<div class="track"><i style="width:' + pct + '%"></i></div>' : '') +
+    '</div>' +
+    '<button class="check" aria-label="Mark as taken"><svg viewBox="0 0 24 24"><polyline points="4,12.5 9.5,18 20,6.5"/></svg></button>';
+  fillMeta(el, m);
+  el.querySelector('.check').onclick = () => toggle(key, el);
+  return el;
+}
+
+/* silent tick: flips this one card, refreshes the counters, saves in the background.
+   No re-render, so nothing re-animates and the page doesn't jump. */
+function toggle(key, el){
+  const k = todayKey();
+  log[k] = log[k] || [];
+  const i = log[k].indexOf(key);
+  const nowDone = i < 0;
+  if (i >= 0) log[k].splice(i,1); else log[k].push(key);
+  if (el) el.classList.toggle('done', nowDone);
+  updateCounts();
+  saveLog();
+}
+
+/* ---------------- travel calculator ---------------- */
+const FRACTIONS = { '½':0.5, '¼':0.25, '¾':0.75, '⅓':1/3, '⅔':2/3, '⅛':0.125 };
+function amtNum(d){
+  const m = (d||'').match(/^\s*([\d.,]+|[½¼¾⅓⅔⅛])/);
+  if (!m) return 1;
+  return FRACTIONS[m[1]] !== undefined ? FRACTIONS[m[1]] : (parseFloat(m[1].replace(',','.')) || 1);
+}
+function unitWord(d){
+  const m = (d||'').match(/^\s*(?:[\d.,]+|[½¼¾⅓⅔⅛])\s*(.*)$/);
+  const w = (m && m[1] ? m[1] : '').trim();
+  return w || 'dose';
+}
+const plural = (n, w) => (n > 1 && !/s$/i.test(w)) ? w + 's' : w;
+const tidy   = n => Math.round(n*100)/100;
+const activeOn = (m, dstr) => { const d = dayDiff(effStart(m), dstr) + 1; return d >= 1 && (!m.days || d <= m.days); };
+
+function renderTrip(){
+  const out = document.getElementById('tripOut');
+  const start = document.getElementById('tStart').value || todayKey();
+  const n = Math.max(1, parseInt(document.getElementById('tDays').value, 10) || 1);
+
+  const dates = [];
+  for (let i = 0; i < n; i++){
+    const d = new Date(start + 'T00:00:00');
+    d.setDate(d.getDate() + i);
+    dates.push(iso(d));
+  }
+
+  const rows = [], totals = {};
+  meds.forEach(m => {
+    const perDay = (m.meals||[]).length;
+    if (!perDay) return;
+    const days = dates.filter(x => activeOn(m, x)).length;
+    if (!days) return;
+    const units = days * perDay * amtNum(m.dose);
+    const w = unitWord(m.dose);
+    totals[w] = (totals[w] || 0) + units;
+    rows.push({ m, days, perDay, units, w });
+  });
+
+  out.innerHTML = '';
+  if (!rows.length){
+    out.innerHTML = '<div class="empty">Nothing on your list runs during those days.</div>';
+    return;
+  }
+
+  const sum = document.createElement('div');
+  sum.className = 'totals';
+  sum.innerHTML = '<em>Pack in total</em>' +
+    Object.keys(totals).map(w => tidy(totals[w]) + ' ' + plural(totals[w], w)).join(' · ');
+  out.appendChild(sum);
+
+  rows.sort((a,b) => b.units - a.units).forEach((r, i) => {
+    const partial = r.days < n;
+    const el = document.createElement('div');
+    el.className = 'pack' + (partial ? ' partial' : '');
+    el.style.animationDelay = (i*30) + 'ms';
+    el.innerHTML = '<div class="who"><b></b><span>' +
+        r.perDay + '× a day · ' + (partial ? 'only ' + r.days + ' of the ' + n + ' days' : n + ' days') +
+      '</span></div>' +
+      '<div class="qty">' + tidy(r.units) + '<small>' + plural(r.units, r.w) + '</small></div>';
+    el.querySelector('b').textContent = r.m.name;
+    out.appendChild(el);
+  });
+}
+document.getElementById('tStart').oninput = renderTrip;
+document.getElementById('tDays').oninput  = renderTrip;
+document.getElementById('tripBtn').onclick = () => {
+  document.getElementById('tStart').value = document.getElementById('tStart').value || todayKey();
+  setTab('trip'); renderTrip();
+};
+
+/* ---------------- configuration view ---------------- */
+function medRow(m){
+  const row = document.createElement('div');
+  row.className = 'med-row ' + bucketOf(m) + (isActive(m) ? '' : ' dim');
+  const mealNames = MEALS.filter(x => (m.meals||[]).includes(x.id)).map(x => x.label).join(' · ') || 'no meals';
+  row.innerHTML = '<div class="body"><div class="name"><span class="n"></span><span class="amt"></span></div>' + metaHTML(m) +
+    '<div class="meta"><span class="tag">' + mealNames + '</span></div>' +
+    (m.note ? '<div class="note"></div>' : '') +
+    '</div><div class="chev">›</div>';
+  fillMeta(row, m, true);
+  row.onclick = () => openSheet(m);
+  return row;
+}
+
+function renderSetup(){
+  const el = document.getElementById('setup');
+  el.innerHTML = '';
+  if (!meds.length){
+    el.innerHTML = '<div class="empty">Nothing saved yet — add your first medication.</div>';
+    return;
+  }
+  const courses = [];
+  meds.forEach(m => { const c = m.course || 'Other'; if (!courses.includes(c)) courses.push(c); });
+  courses.forEach(c => {
+    const list = meds.filter(m => (m.course || 'Other') === c);
+    const head = document.createElement('div');
+    head.className = 'sec-head';
+    head.innerHTML = '<h2></h2><span class="rule"></span><span class="count">' + list.length + '</span>';
+    head.querySelector('h2').textContent = c;
+    el.appendChild(head);
+    list.forEach(m => el.appendChild(medRow(m)));
+  });
+}
+
+/* ---------------- meal subtabs — one meal at a time ---------------- */
+function paintFilters(){
+  document.querySelectorAll('#filters button').forEach(b =>
+    b.classList.toggle('on', b.dataset.v === ui.meal));
+}
+document.querySelectorAll('#filters button').forEach(b => b.onclick = () => {
+  if (b.dataset.v === ui.meal) return;
+  ui.meal = b.dataset.v; saveUI(); paintFilters(); render();
+});
+
+/* ---------------- checklist ⇄ configuration ---------------- */
+const ICON_GEAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+  '<line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>' +
+  '<circle cx="9" cy="7" r="2.4" fill="var(--paper-2)"/><circle cx="15" cy="12" r="2.4" fill="var(--paper-2)"/>' +
+  '<circle cx="9" cy="17" r="2.4" fill="var(--paper-2)"/></svg>';
+const ICON_BACK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+  '<polyline points="15,5 8,12 15,19"/></svg>';
+
+const ICON_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+  '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>';
+const ICON_EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+  '<path d="M2 12s3.6-6.5 10-6.5c1.9 0 3.5.6 4.9 1.4"/><path d="M20.4 9.2c1 1.4 1.6 2.8 1.6 2.8s-3.6 6.5-10 6.5c-1.4 0-2.6-.3-3.7-.7"/>' +
+  '<line x1="4" y1="20" x2="20" y2="4"/></svg>';
+
+/* show-everything toggle for the checklist cards */
+function paintDetail(){
+  document.body.classList.toggle('detailed', !!ui.detail);
+  const b = document.getElementById('eye');
+  b.innerHTML = ui.detail ? ICON_EYE : ICON_EYE_OFF;
+  b.classList.toggle('on', !!ui.detail);
+  b.setAttribute('aria-label', ui.detail ? 'Hide details' : 'Show details');
+}
+document.getElementById('eye').onclick = () => { ui.detail = !ui.detail; saveUI(); paintDetail(); };
+
+function setTab(t){
+  ui.tab = t; saveUI();
+  const today = t === 'today';
+  document.getElementById('viewToday').classList.toggle('on', today);
+  document.getElementById('viewSetup').classList.toggle('on', t === 'setup');
+  document.getElementById('viewTrip').classList.toggle('on', t === 'trip');
+  document.getElementById('barWrap').style.display = today ? 'block' : 'none';
+  document.getElementById('filters').style.display = today ? 'flex' : 'none';
+  document.getElementById('eye').style.display = today ? 'grid' : 'none';
+  document.getElementById('eyebrow').textContent = today ? 'Daily doses' : (t === 'trip' ? 'Calculator' : 'Setup');
+  document.getElementById('title').innerHTML = today ? "Today's <em>meds</em>"
+    : (t === 'trip' ? 'What to <em>pack</em>' : 'Your <em>list</em>');
+  const g = document.getElementById('gear');
+  g.innerHTML = today ? ICON_GEAR : ICON_BACK;
+  g.classList.toggle('on', !today);
+  g.setAttribute('aria-label', today ? 'Configuration' : 'Back');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+/* the icon walks back one step: trip → setup → checklist */
+document.getElementById('gear').onclick = () =>
+  setTab(ui.tab === 'trip' ? 'setup' : (ui.tab === 'setup' ? 'today' : 'setup'));
+
+/* ---------------- modal ---------------- */
+const sheet = document.getElementById('sheet'), scrim = document.getElementById('scrim');
+
+function openSheet(med){
+  draft = med ? JSON.parse(JSON.stringify(med))
+              : { id:'m'+Date.now(), name:'', dose:'', meals:['breakfast'], rel:'before', gap:0,
+                  start:todayKey(), days:null, course:'', note:'', after:null };
+  document.getElementById('sheetTitle').textContent = med ? 'Edit medication' : 'Add medication';
+  document.getElementById('fName').value   = draft.name;
+  document.getElementById('fDose').value   = draft.dose;
+  document.getElementById('fStart').value  = draft.start || todayKey();
+  document.getElementById('fDays').value   = draft.days || '';
+  document.getElementById('fCourse').value = draft.course || '';
+  document.getElementById('fNote').value   = draft.note || '';
+  document.getElementById('del').style.display = med ? 'block' : 'none';
+  paintMeals(); setRel(draft.rel); setGap(draft.gap); buildAfterOptions(); paintDep();
+  scrim.classList.add('open'); sheet.classList.add('open'); sheet.scrollTop = 0;
+}
+function closeSheet(){ scrim.classList.remove('open'); sheet.classList.remove('open'); draft = null; }
+
+/* the "starts after X finishes" dropdown */
+function buildAfterOptions(){
+  const sel = document.getElementById('fAfter');
+  sel.innerHTML = '<option value="">— nothing, use the start date —</option>';
+  meds.filter(m => m.id !== draft.id && m.days).forEach(m => {
+    const o = document.createElement('option');
+    o.value = m.id; o.textContent = m.name + ' (' + m.days + ' days)';
+    sel.appendChild(o);
+  });
+  sel.value = draft.after || '';
+}
+function paintDep(){
+  const hint = document.getElementById('depHint');
+  const startInput = document.getElementById('fStart');
+  if (draft.after){
+    const dep = meds.find(x => x.id === draft.after);
+    startInput.disabled = true;
+    hint.style.display = 'block';
+    hint.textContent = dep ? 'Starts the day after ' + dep.name + ' ends — ' +
+      new Date(effStart(Object.assign({}, draft)) + 'T00:00:00').toLocaleDateString(undefined,{day:'numeric',month:'short'}) +
+      '. Change ' + dep.name + ' and this moves with it.' : '';
+  } else {
+    startInput.disabled = false;
+    hint.style.display = 'none';
+  }
+}
+document.getElementById('fAfter').onchange = e => { draft.after = e.target.value || null; paintDep(); };
+
+function paintMeals(){
+  document.querySelectorAll('#segMeals button').forEach(b => b.classList.toggle('on', draft.meals.includes(b.dataset.v)));
+}
+document.querySelectorAll('#segMeals button').forEach(b => b.onclick = () => {
+  const v = b.dataset.v;
+  draft.meals = draft.meals.includes(v) ? draft.meals.filter(x => x !== v) : draft.meals.concat(v);
+  paintMeals();
+});
+
+function setRel(v){
+  draft.rel = v;
+  document.querySelectorAll('#segRel button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  document.getElementById('gapOpts').style.display = v === 'with' ? 'none' : 'flex';
+}
+document.querySelectorAll('#segRel button').forEach(b => b.onclick = () => setRel(b.dataset.v));
+
+function setGap(v){
+  draft.gap = Number(v) || 0;
+  document.querySelectorAll('#gapOpts button').forEach(b => b.classList.toggle('on', Number(b.dataset.v) === draft.gap));
+  document.getElementById('segRel').classList.toggle('gapped', draft.gap > 0);
+}
+document.querySelectorAll('#gapOpts button').forEach(b => b.onclick = () =>
+  setGap(Number(b.dataset.v) === draft.gap ? 0 : b.dataset.v));
+
+document.getElementById('addBtn').onclick = () => openSheet(null);
+document.getElementById('closeX').onclick = closeSheet;
+document.getElementById('cancel').onclick = closeSheet;
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && draft) closeSheet(); });
+/* backdrop taps are intentionally ignored */
+
+document.getElementById('save').onclick = async () => {
+  const name = document.getElementById('fName').value.trim();
+  if (!name){ document.getElementById('fName').focus(); return; }
+  if (!draft.meals.length){ document.getElementById('segMeals').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  draft.name   = name;
+  draft.dose   = document.getElementById('fDose').value.trim();
+  draft.start  = document.getElementById('fStart').value || todayKey();
+  const dv     = parseInt(document.getElementById('fDays').value, 10);
+  draft.days   = (dv && dv > 0) ? dv : null;
+  draft.course = document.getElementById('fCourse').value.trim();
+  draft.note   = document.getElementById('fNote').value.trim();
+  draft.after  = document.getElementById('fAfter').value || null;
+  if (draft.rel === 'with') draft.gap = 0;
+  const i = meds.findIndex(m => m.id === draft.id);
+  if (i >= 0) meds[i] = draft; else meds.push(draft);
+  await saveMeds(); closeSheet(); render();
+};
+
+document.getElementById('del').onclick = async () => {
+  const gone = draft.id;
+  meds.forEach(m => { if (m.after === gone){ m.start = effStart(m); m.after = null; } });
+  meds = meds.filter(m => m.id !== gone);
+  await saveMeds(); closeSheet(); render();
+};
+
+document.getElementById('reset').onclick = async () => {
+  if (!confirm('Replace everything with the original prescription list? Your edits will be lost.')) return;
+  meds = seedMeds(); await saveMeds(); render();
+};
+
+/* offline support — only meaningful when served over https */
+if ('serviceWorker' in navigator && location.protocol === 'https:'){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
+load();
+</script>
+</body>
+</html>
