@@ -335,12 +335,14 @@
   .dk-visit{background:var(--clay)}
   .dk-test{background:var(--bwait)}
   .dk-end{background:var(--ochre)}
+  .dk-book{background:var(--wait)}
   .cal-legend{display:flex;gap:12px;justify-content:center;margin-top:10px;font-size:11px;color:var(--ink-soft);font-weight:600}
   .cal-legend i{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
   .ag-item{display:flex;align-items:center;gap:12px;background:var(--paper-2);border:1px solid var(--line);
     border-left:5px solid var(--line);border-radius:14px;padding:11px 14px;margin-bottom:7px;box-shadow:var(--shadow)}
   .ag-item.visit{border-left-color:var(--clay)}
   .ag-item.test{border-left-color:var(--bwait)}
+  .ag-item.book{border-left-color:var(--wait)}
   .ag-item.end{border-left-color:var(--ochre);opacity:.85}
   .ag-when{min-width:46px;text-align:center;flex:0 0 auto}
   .ag-when b{font-family:"Fraunces",serif;font-size:20px;font-weight:600;display:block;line-height:1}
@@ -352,6 +354,7 @@
   .ag-kind{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:block}
   .ag-item.visit .ag-kind{color:var(--clay)}
   .ag-item.test .ag-kind{color:var(--bwait)}
+  .ag-item.book .ag-kind{color:var(--dep-ink)}
   .ag-item.end .ag-kind{color:var(--ochre)}
   .ag-item.overdue .ag-kind{color:var(--clay)}
   .ag-check{flex:0 0 auto;width:34px;height:34px;border-radius:50%;cursor:pointer;
@@ -551,6 +554,12 @@
       </div>
     </div>
     <p class="hint" id="vHint"></p>
+  </div>
+
+  <div class="field">
+    <label for="vBook">Booking call — days before the visit</label>
+    <input type="number" id="vBook" min="0" max="60" step="1" placeholder="no reminder">
+    <p class="hint">You'll be reminded to call the doctor and book this many days ahead. Leave empty for no reminder.</p>
   </div>
 
   <div class="field">
@@ -1085,6 +1094,7 @@ function visitDate(v){
   return v.date || todayKey();
 }
 const testDate = (v, t) => { const d = new Date(visitDate(v)+'T00:00:00'); d.setDate(d.getDate() - (t.before||0)); return iso(d); };
+const bookDate = v => { const d = new Date(visitDate(v)+'T00:00:00'); d.setDate(d.getDate() - (v.book.before||0)); return iso(d); };
 
 async function saveCare(){
   const cutoff = plusDays(-60);
@@ -1109,6 +1119,9 @@ function careItems(){
     (v.tests||[]).forEach(t => items.push({ date: testDate(v, t), kind:'test', label: t.name,
       sub: (t.before ? t.before + (t.before === 1 ? ' day' : ' days') + ' before ' : 'day of ') + v.title,
       done: !!t.done, vId: v.id, tId: t.id }));
+    if (v.book) items.push({ date: bookDate(v), kind:'book', label: v.title,
+      sub: 'call to book, ' + (v.book.before ? v.book.before + (v.book.before === 1 ? ' day' : ' days') + ' ahead' : 'day of the visit'),
+      done: !!v.book.done, vId: v.id, book: true });
   });
   meds.filter(m => m.days).forEach(m => items.push({ date: courseEnd(m), kind:'end',
     label: m.name + ' finishes', sub: m.days + '-day course', done:false, end:true }));
@@ -1129,7 +1142,8 @@ function updateCareNote(){
   const today = todayKey();
   const overdueN = due.filter(it => it.date < today).length;
   note.querySelector('b').textContent = due.length === 1
-    ? (due[0].kind === 'test' ? 'Lab test' : 'Doctor visit') + (due[0].date < today ? ' overdue' : ' today') + ' — ' + due[0].label
+    ? (due[0].kind === 'test' ? 'Lab test' : due[0].kind === 'book' ? 'Call to book' : 'Doctor visit') +
+      (due[0].date < today ? ' overdue' : ' today') + ' — ' + due[0].label
     : due.length + ' care items need attention' + (overdueN ? ' (' + overdueN + ' overdue)' : '');
 }
 
@@ -1164,7 +1178,7 @@ function renderCal(){
   wrap.innerHTML = '<div class="cal-head"><b></b>' +
     '<div class="cal-nav"><button id="calPrev" aria-label="Previous month">‹</button><button id="calNext" aria-label="Next month">›</button></div></div>' +
     '<div class="cal-grid">' + cells + '</div>' +
-    '<div class="cal-legend"><span><i class="dk-visit"></i>Visit</span><span><i class="dk-test"></i>Lab test</span><span><i class="dk-end"></i>Course ends</span></div>';
+    '<div class="cal-legend"><span><i class="dk-visit"></i>Visit</span><span><i class="dk-test"></i>Lab test</span><span><i class="dk-book"></i>Book</span><span><i class="dk-end"></i>Course ends</span></div>';
   wrap.querySelector('.cal-head b').textContent = monthName;
   el.appendChild(wrap);
   wrap.querySelector('#calPrev').onclick = () => { calMonth.m--; if (calMonth.m < 0){ calMonth.m = 11; calMonth.y--; } renderCal(); };
@@ -1189,7 +1203,8 @@ function renderCal(){
       '<div class="ag-body"><span class="ag-kind"></span><b></b><span class="ag-sub"></span></div>' +
       (it.end ? '' : '<button class="ag-check" aria-label="Mark done"><svg viewBox="0 0 24 24"><polyline points="4,12.5 9.5,18 20,6.5"/></svg></button>');
     row.querySelector('.ag-kind').textContent =
-      (it.kind === 'visit' ? 'Doctor visit' : it.kind === 'test' ? 'Lab test' : 'Course ends') +
+      (it.kind === 'visit' ? 'Doctor visit' : it.kind === 'test' ? 'Lab test'
+        : it.kind === 'book' ? 'Call to book' : 'Course ends') +
       (it.overdue ? ' · overdue' : '');
     if (it.overdue) row.classList.add('overdue');
     row.querySelector('.ag-body b').textContent = it.label;
@@ -1198,7 +1213,8 @@ function renderCal(){
       row.querySelector('.ag-check').onclick = async e => {
         e.stopPropagation();
         const v = care.find(x => x.id === it.vId); if (!v) return;
-        if (it.tId){ const t = (v.tests||[]).find(x => x.id === it.tId); if (t) t.done = !t.done; }
+        if (it.book){ if (v.book) v.book.done = !v.book.done; }
+        else if (it.tId){ const t = (v.tests||[]).find(x => x.id === it.tId); if (t) t.done = !t.done; }
         else v.done = !v.done;
         await saveCare(); renderCal(); updateCareNote();
       };
@@ -1240,6 +1256,7 @@ function openVisitSheet(v){
   document.getElementById('vNote').value = vdraft.note || '';
   document.getElementById('vDate').value = vdraft.date || todayKey();
   document.getElementById('vOffset').value = vdraft.offset ?? 1;
+  document.getElementById('vBook').value = vdraft.book ? vdraft.book.before : '';
   buildVAfter(); paintVAnchor(); paintVTests();
   document.getElementById('vDel').style.display = v ? 'block' : 'none';
   scrim.classList.add('open');
@@ -1317,6 +1334,9 @@ document.getElementById('vSave').onclick = async () => {
   vdraft.title = title;
   vdraft.note = document.getElementById('vNote').value.trim();
   if (!vdraft.after) vdraft.date = document.getElementById('vDate').value || todayKey();
+  const bv = document.getElementById('vBook').value.trim();
+  vdraft.book = bv === '' ? null
+    : { before: Math.max(0, Math.min(60, parseInt(bv, 10) || 0)), done: (vdraft.book && vdraft.book.done) || false };
   vdraft.tests = vdraft.tests.filter(t => t.name.trim());
   const i = care.findIndex(v => v.id === vdraft.id);
   if (i >= 0) care[i] = vdraft; else care.push(vdraft);
