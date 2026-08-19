@@ -13,10 +13,11 @@ The only server code is `api/sync.js`, a Vercel function over a Neon Postgres da
   `color-mix(...)` over the palette vars so both themes get them for free — never add a
   hard-coded rgba/hex tint. Text on solid accent backgrounds is `--on-accent`.
 - `<body>` — header (title, date, progress bar, three icon buttons: theme, detail, config),
-  meal subtabs, three views, the sync section inside the setup view, the add/edit modal.
+  meal subtabs, four views (checklist, setup, travel, history), the sync section inside
+  the setup view, the add/edit modal.
 - `<script>` — in order: storage wrapper, date maths, the seeded prescription, state, label
-  helpers, checklist render, travel calculator, configuration render, navigation, theme,
-  modal, sync.
+  helpers, checklist render, travel calculator, history view, configuration render,
+  navigation, theme, modal, sync.
 
 ## Concepts
 
@@ -29,6 +30,11 @@ The only server code is `api/sync.js`, a Vercel function over a Neon Postgres da
   read `m.start` directly for scheduling — go through `effStart`.
 - **`ui.detail`** toggles the simple/detailed card view via a `detailed` class on `<body>`; the
   hiding is pure CSS, scoped to `#day`.
+- **History** is derived entirely at render time (day summaries, streak, per-med record) from
+  meds + log — it never writes and has no stored state. `expectedOn(date)` = active meds ×
+  their meals via `activeOn`; taken = intersection with `takenOn(date)`, so ticks for deleted
+  meds are ignored. Entry points: tapping the progress area on the checklist, or the button in
+  setup; `histBack`/`histMed` are transient, never persisted. Spec: `specs/001-history-view/`.
 
 ## Storage
 
@@ -71,5 +77,4 @@ Neon integration). Semantics, all client-side in the sync module at the bottom o
 
 - Notifications. Real alarms need a service worker push or a native app; the browser can only
   nudge while the page is open. Decided against for now.
-- History view over the tick log (the data is already there, 60 days of it).
 - Refill/stock tracking ("N tabs left, runs out on the 12th").

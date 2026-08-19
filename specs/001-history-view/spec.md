@@ -4,7 +4,7 @@
 
 **Created**: 2026-08-19
 
-**Status**: Draft — awaiting user review
+**Status**: Implemented (2026-08-19)
 
 **Input**: User description: "Adherence history view over the 60-day tick log: per-day completion, streaks, and per-medication history"
 

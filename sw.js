@@ -1,6 +1,6 @@
 /* Doses — offline service worker.
    App shell is cached on install; fonts are cached as they're used. */
-const VERSION = 'doses-v2';
+const VERSION = 'doses-v3';
 const SHELL = [
   './',
   './index.html',

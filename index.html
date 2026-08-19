@@ -272,6 +272,38 @@
   .sync-code span{font-size:12px;color:var(--ink-soft);display:block;margin-top:3px}
   .btn-mini{flex:0 0 auto;font-family:inherit;font-weight:700;font-size:13px;padding:8px 14px;border-radius:99px;
     border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+
+  /* ---- history ---- */
+  #barWrap{cursor:pointer}
+  .hday{background:var(--paper-2);border:1px solid var(--line);border-left:5px solid var(--line);border-radius:14px;
+    padding:11px 14px;margin-bottom:7px;box-shadow:var(--shadow);cursor:pointer;animation:rise .4s cubic-bezier(.2,.8,.2,1) both}
+  .hday.full{border-left-color:var(--green)}
+  .hday.part{border-left-color:var(--ochre)}
+  .hday.miss{border-left-color:var(--clay)}
+  .hday.idle{opacity:.55;cursor:default}
+  .hday.today{border-color:color-mix(in srgb, var(--green) 35%, transparent)}
+  .hd-top{display:flex;align-items:center;gap:10px}
+  .hd-top b{font-size:15px;font-weight:700;flex:1;min-width:0}
+  .hd-count{font-size:12.5px;color:var(--ink-soft);white-space:nowrap}
+  .hday.full .hd-count{color:var(--green);font-weight:700}
+  .hd-bar{height:3px;border-radius:99px;background:color-mix(in srgb, var(--ink) 10%, transparent);margin-top:9px;overflow:hidden}
+  .hd-bar i{display:block;height:100%;border-radius:99px;background:var(--green-dim)}
+  .hday.full .hd-bar i{background:var(--green)}
+  .hday.miss .hd-bar i{background:var(--clay)}
+  .hd-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .hday.open .hd-detail{display:block}
+  .hd-ok{font-size:13px;color:var(--green);font-weight:700}
+  .hd-miss{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0}
+  .hd-med{font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);background:none;border:none;padding:0;
+    cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:3px;
+    text-decoration-color:color-mix(in srgb, var(--ink) 30%, transparent);word-break:break-word}
+  .hd-meal{flex:0 0 auto;font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;
+    background:color-mix(in srgb, var(--ink) 7%, transparent);color:var(--ink-soft)}
+  .hd-slots{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end}
+  .hd-slot{flex:0 0 auto;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;white-space:nowrap}
+  .hd-slot.ok{background:color-mix(in srgb, var(--green) 13%, transparent);color:var(--green)}
+  .hd-slot.no{background:color-mix(in srgb, var(--clay) 13%, transparent);color:var(--clay)}
+  .hd-cap{text-align:center;font-size:12px;color:var(--ink-soft);margin:14px 0 4px;opacity:.8}
   footer{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:30px;opacity:.75}
 </style>
 </head>
@@ -307,6 +339,7 @@
 </div>
 
 <div class="view" id="viewSetup">
+  <button class="btn trip" id="histBtn">History — how you've been doing</button>
   <button class="btn trip" id="tripBtn">Travel calculator — what to pack</button>
   <div id="setup"></div>
   <div class="sec-head"><h2>Sync</h2><span class="rule"></span></div>
@@ -328,6 +361,10 @@
     </div>
   </div>
   <div id="tripOut"></div>
+</div>
+
+<div class="view" id="viewHist">
+  <div id="hist"></div>
 </div>
 
 <footer>Saved on this device · tap any medication to edit</footer>
@@ -622,6 +659,7 @@ function render(){
 
   updateCounts();
   renderSetup();
+  if (ui.tab === 'history') renderHistory();   /* sync pulls land here too */
 }
 
 /* recomputes the progress bar and the per-meal counters without touching the cards */
@@ -760,6 +798,158 @@ document.getElementById('tripBtn').onclick = () => {
   setTab('trip'); renderTrip();
 };
 
+/* ---------------- history view ----------------
+   Everything here is derived at render time from meds + log — no writes,
+   no sync calls, no stored state. histBack / histMed are transient. */
+let histBack = 'today', histMed = null;
+
+function expectedOn(dstr){
+  const out = [];
+  meds.forEach(m => { if (activeOn(m, dstr)) (m.meals||[]).forEach(meal => out.push(m.id + '|' + meal)); });
+  return out;
+}
+function daySummary(dstr){
+  const expected = expectedOn(dstr);
+  const on = takenOn(dstr);
+  const taken = expected.filter(k => on.includes(k));
+  const missed = expected.filter(k => !on.includes(k));
+  const state = !expected.length ? 'idle' : (!taken.length ? 'miss' : (missed.length ? 'part' : 'full'));
+  return { date:dstr, expected, taken, missed, state, isToday: dstr === todayKey() };
+}
+/* newest first; at least 14 days, then only while days still carry data or a schedule, capped at the 60-day log window */
+function historyDays(){
+  const days = [];
+  for (let i = 0; i < 60; i++){
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const s = daySummary(iso(d));
+    s.hasData = s.expected.length > 0 || !!(log[s.date] && Object.keys(log[s.date]).length);
+    days.push(s);
+  }
+  let end = days.length;
+  while (end > 14 && !days[end-1].hasData) end--;
+  return days.slice(0, Math.max(14, end));
+}
+/* idle days pass through; today counts only when complete and never breaks the run */
+function streakFrom(days){
+  let n = 0;
+  for (const s of days){
+    if (s.state === 'idle') continue;
+    if (s.isToday){ if (s.state === 'full') n++; continue; }
+    if (s.state === 'full') n++; else break;
+  }
+  return n;
+}
+const histDate = dstr => new Date(dstr + 'T00:00:00').toLocaleDateString(undefined,{weekday:'short', day:'numeric', month:'short'});
+
+function renderHistory(){
+  const el = document.getElementById('hist');
+  el.innerHTML = '';
+  if (histMed){ renderMedHistory(el); return; }
+
+  const days = historyDays();
+  const streak = streakFrom(days);
+  const scheduled = days.filter(s => s.state !== 'idle');
+  const expectedAll = scheduled.reduce((n,s) => n + s.expected.length, 0);
+  const takenAll = scheduled.reduce((n,s) => n + s.taken.length, 0);
+
+  const head = document.createElement('div');
+  head.className = 'totals';
+  head.innerHTML = '<em>Current streak</em>' +
+    (streak ? streak + (streak === 1 ? ' day' : ' days') + ' of everything taken' : 'No streak yet — today is a fresh start') +
+    (expectedAll ? '<em style="margin-top:10px">These ' + scheduled.length + ' days</em>' + takenAll + ' of ' + expectedAll + ' doses taken' : '');
+  el.appendChild(head);
+
+  days.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'hday ' + s.state + (s.isToday ? ' today' : '');
+    row.style.animationDelay = (Math.min(i,20)*20) + 'ms';
+    const pct = s.expected.length ? s.taken.length / s.expected.length * 100 : 0;
+    row.innerHTML = '<div class="hd-top"><b></b><span class="hd-count"></span></div>' +
+      (s.state === 'idle' ? '' : '<div class="hd-bar"><i style="width:' + pct + '%"></i></div><div class="hd-detail"></div>');
+    row.querySelector('b').textContent = s.isToday ? 'Today' : histDate(s.date);
+    row.querySelector('.hd-count').textContent = s.state === 'idle'
+      ? 'nothing scheduled'
+      : s.taken.length + ' of ' + s.expected.length + ' taken';
+    if (s.state !== 'idle'){
+      const det = row.querySelector('.hd-detail');
+      if (!s.missed.length){
+        det.innerHTML = '<span class="hd-ok">Everything taken</span>';
+      } else {
+        s.missed.forEach(k => {
+          const id = k.split('|')[0], meal = k.split('|')[1];
+          const m = meds.find(x => x.id === id);
+          if (!m) return;
+          const line = document.createElement('div');
+          line.className = 'hd-miss';
+          line.innerHTML = '<button class="hd-med"></button><span class="hd-meal"></span>';
+          line.querySelector('.hd-med').textContent = m.name;
+          line.querySelector('.hd-meal').textContent = (MEALS.find(x => x.id === meal) || {}).label || meal;
+          line.querySelector('.hd-med').onclick = e => { e.stopPropagation(); histMed = id; renderHistory(); };
+          det.appendChild(line);
+        });
+      }
+      row.onclick = () => row.classList.toggle('open');
+    }
+    el.appendChild(row);
+  });
+
+  const cap = document.createElement('p');
+  cap.className = 'hd-cap';
+  cap.textContent = 'History keeps 60 days';
+  el.appendChild(cap);
+}
+
+/* one medication's own record: a row per day inside its course window, a chip per meal slot */
+function renderMedHistory(el){
+  const m = meds.find(x => x.id === histMed);
+  if (!m){ histMed = null; renderHistory(); return; }
+
+  const back = document.createElement('button');
+  back.className = 'btn cancel';
+  back.style.marginTop = '0';
+  back.textContent = '← All days';
+  back.onclick = () => { histMed = null; renderHistory(); };
+  el.appendChild(back);
+
+  const head = document.createElement('div');
+  head.className = 'totals';
+  head.innerHTML = '<em></em><span></span>';
+  head.querySelector('em').textContent = m.name;
+  head.querySelector('span').textContent = (m.dose ? m.dose + ' · ' : '') + relLabel(m);
+  el.appendChild(head);
+
+  const days = historyDays().filter(s => activeOn(m, s.date));
+  if (!days.length){
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'No days in the last 60 fall inside this course.';
+    el.appendChild(e);
+    return;
+  }
+  days.forEach((s, i) => {
+    const on = takenOn(s.date);
+    const slots = (m.meals||[]).map(meal => ({
+      label: (MEALS.find(x => x.id === meal) || {}).label || meal,
+      ok: on.includes(m.id + '|' + meal)
+    }));
+    const allOk = slots.every(x => x.ok);
+    const row = document.createElement('div');
+    row.className = 'hday ' + (allOk ? 'full' : (slots.some(x => x.ok) ? 'part' : 'miss')) + (s.isToday ? ' today' : '');
+    row.style.cursor = 'default';
+    row.style.animationDelay = (Math.min(i,20)*20) + 'ms';
+    row.innerHTML = '<div class="hd-top"><b></b><span class="hd-slots"></span></div>';
+    row.querySelector('b').textContent = s.isToday ? 'Today' : histDate(s.date);
+    const wrap = row.querySelector('.hd-slots');
+    slots.forEach(x => {
+      const c = document.createElement('span');
+      c.className = 'hd-slot ' + (x.ok ? 'ok' : 'no');
+      c.textContent = x.label + (x.ok ? ' ✓' : ' —');
+      wrap.appendChild(c);
+    });
+    el.appendChild(row);
+  });
+}
+
 /* ---------------- configuration view ---------------- */
 function medRow(m){
   const row = document.createElement('div');
@@ -854,21 +1044,29 @@ function setTab(t){
   document.getElementById('viewToday').classList.toggle('on', today);
   document.getElementById('viewSetup').classList.toggle('on', t === 'setup');
   document.getElementById('viewTrip').classList.toggle('on', t === 'trip');
+  document.getElementById('viewHist').classList.toggle('on', t === 'history');
   document.getElementById('barWrap').style.display = today ? 'block' : 'none';
   document.getElementById('filters').style.display = today ? 'flex' : 'none';
   document.getElementById('eye').style.display = today ? 'grid' : 'none';
-  document.getElementById('eyebrow').textContent = today ? 'Daily doses' : (t === 'trip' ? 'Calculator' : 'Setup');
+  document.getElementById('eyebrow').textContent = today ? 'Daily doses'
+    : (t === 'trip' ? 'Calculator' : (t === 'history' ? 'History' : 'Setup'));
   document.getElementById('title').innerHTML = today ? "Today's <em>meds</em>"
-    : (t === 'trip' ? 'What to <em>pack</em>' : 'Your <em>list</em>');
+    : (t === 'trip' ? 'What to <em>pack</em>' : (t === 'history' ? "How it's <em>going</em>" : 'Your <em>list</em>'));
   const g = document.getElementById('gear');
   g.innerHTML = today ? ICON_GEAR : ICON_BACK;
   g.classList.toggle('on', !today);
   g.setAttribute('aria-label', today ? 'Configuration' : 'Back');
   window.scrollTo({top:0, behavior:'smooth'});
 }
-/* the icon walks back one step: trip → setup → checklist */
+/* the icon walks back one step: trip → setup → checklist; history returns to where it was opened */
 document.getElementById('gear').onclick = () =>
-  setTab(ui.tab === 'trip' ? 'setup' : (ui.tab === 'setup' ? 'today' : 'setup'));
+  setTab(ui.tab === 'history' ? histBack
+    : ui.tab === 'trip' ? 'setup' : (ui.tab === 'setup' ? 'today' : 'setup'));
+
+/* history entries: tap the progress area on the checklist, or the button in setup */
+function openHistory(from){ histBack = from; histMed = null; setTab('history'); renderHistory(); }
+document.getElementById('barWrap').onclick = () => openHistory('today');
+document.getElementById('histBtn').onclick = () => openHistory('setup');
 
 /* ---------------- modal ---------------- */
 const sheet = document.getElementById('sheet'), scrim = document.getElementById('scrim');

@@ -13,14 +13,14 @@ harness lives in the session scratchpad (not committed), per the sync feature's 
 
 ## Phase 1: Setup
 
-- [ ] T001 Confirm working tree clean on branch `claude/app-build-together-og1ruj` and dev server + Playwright harness runs against repo root (scratchpad `mock-server.cjs`)
+- [x] T001 Confirm working tree clean on branch `claude/app-build-together-og1ruj` and dev server + Playwright harness runs against repo root (scratchpad `mock-server.cjs`)
 
 ## Phase 2: Foundational (blocking for all stories)
 
-- [ ] T002 Add `#viewHist` view container markup (empty `<div id="hist">` inside a `.view`) after `#viewTrip` in `index.html`
-- [ ] T003 Extend `setTab()` in `index.html` to handle `'history'` (hide bar/filters/eye, eyebrow "History", title "How it's <em>going</em>", gear = back) and add transient `histBack` return-target variable per research R1
-- [ ] T004 Add entry points in `index.html`: click on `#barWrap` (progress area) opens history with `histBack='today'`; new button `#histBtn` ("History — how you've been doing", `.btn.trip` style) at top of `#viewSetup` with `histBack='setup'`; gear click from history returns to `histBack`
-- [ ] T005 Add pure helpers in `index.html` history module: `expectedOn(dateStr)` (activeOn × meals → keys) and `daySummary(dateStr)` (expected/taken/missed/state per data-model.md), plus window-walk producing the day list per research R3
+- [x] T002 Add `#viewHist` view container markup (empty `<div id="hist">` inside a `.view`) after `#viewTrip` in `index.html`
+- [x] T003 Extend `setTab()` in `index.html` to handle `'history'` (hide bar/filters/eye, eyebrow "History", title "How it's <em>going</em>", gear = back) and add transient `histBack` return-target variable per research R1
+- [x] T004 Add entry points in `index.html`: click on `#barWrap` (progress area) opens history with `histBack='today'`; new button `#histBtn` ("History — how you've been doing", `.btn.trip` style) at top of `#viewSetup` with `histBack='setup'`; gear click from history returns to `histBack`
+- [x] T005 Add pure helpers in `index.html` history module: `expectedOn(dateStr)` (activeOn × meals → keys) and `daySummary(dateStr)` (expected/taken/missed/state per data-model.md), plus window-walk producing the day list per research R3
 
 ## Phase 3: User Story 1 — Did I take everything the last few days? (P1) 🎯 MVP
 
@@ -28,11 +28,11 @@ harness lives in the session scratchpad (not committed), per the sync feature's 
 
 **Independent test**: Quickstart checks 1, 2, 6 pass on the seeded scenario.
 
-- [ ] T006 [US1] Implement `renderHistory()` summary mode in `index.html`: day rows (date label, `taken of expected`, state pip/bar; "Today" label; idle rows say "nothing scheduled"), window caption "History keeps 60 days"
-- [ ] T007 [US1] Implement day-row inline detail toggle in `index.html`: tap toggles `open` class only (no list re-render); detail lists missed doses as "med — meal" or "Everything taken"
-- [ ] T008 [US1] Add history CSS block in `index.html` `<style>`: `.hday` rows, state colours via palette vars + `color-mix` only (full=green, part=ochre, miss=clay, idle=dim), open/detail styles, 390px-safe
-- [ ] T009 [US1] Wire live refresh in `index.html`: `render()` calls `renderHistory()` when `ui.tab==='history'`
-- [ ] T010 [US1] Validate US1 via quickstart checks 1, 2, 6 (seeded Playwright scenario incl. zero-`store.set` spy baseline)
+- [x] T006 [US1] Implement `renderHistory()` summary mode in `index.html`: day rows (date label, `taken of expected`, state pip/bar; "Today" label; idle rows say "nothing scheduled"), window caption "History keeps 60 days"
+- [x] T007 [US1] Implement day-row inline detail toggle in `index.html`: tap toggles `open` class only (no list re-render); detail lists missed doses as "med — meal" or "Everything taken"
+- [x] T008 [US1] Add history CSS block in `index.html` `<style>`: `.hday` rows, state colours via palette vars + `color-mix` only (full=green, part=ochre, miss=clay, idle=dim), open/detail styles, 390px-safe
+- [x] T009 [US1] Wire live refresh in `index.html`: `render()` calls `renderHistory()` when `ui.tab==='history'`
+- [x] T010 [US1] Validate US1 via quickstart checks 1, 2, 6 (seeded Playwright scenario incl. zero-`store.set` spy baseline)
 
 ## Phase 4: User Story 2 — Current streak (P2)
 
@@ -40,9 +40,9 @@ harness lives in the session scratchpad (not committed), per the sync feature's 
 
 **Independent test**: Quickstart check 3 passes on constructed logs.
 
-- [ ] T011 [US2] Implement `streakFrom(days)` pure helper in `index.html` per data-model.md streak rules
-- [ ] T012 [US2] Render streak header in `renderHistory()` (`.totals`-style box: streak count + adherence-window note) in `index.html`
-- [ ] T013 [US2] Validate US2 via quickstart check 3 (streak before/after completing today)
+- [x] T011 [US2] Implement `streakFrom(days)` pure helper in `index.html` per data-model.md streak rules
+- [x] T012 [US2] Render streak header in `renderHistory()` (`.totals`-style box: streak count + adherence-window note) in `index.html`
+- [x] T013 [US2] Validate US2 via quickstart check 3 (streak before/after completing today)
 
 ## Phase 5: User Story 3 — Per-medication history (P3)
 
@@ -50,15 +50,15 @@ harness lives in the session scratchpad (not committed), per the sync feature's 
 
 **Independent test**: Quickstart check 4 passes.
 
-- [ ] T014 [US3] Implement per-med mode in `index.html`: transient `histMed`, med-name tap in day detail enters it, "← All days" button leaves it; per-day rows show one mark per scheduled meal (taken/missed) per data-model.md PerMedDay
-- [ ] T015 [US3] Extend history CSS in `index.html` for per-med rows/marks (palette vars only)
-- [ ] T016 [US3] Validate US3 via quickstart check 4
+- [x] T014 [US3] Implement per-med mode in `index.html`: transient `histMed`, med-name tap in day detail enters it, "← All days" button leaves it; per-day rows show one mark per scheduled meal (taken/missed) per data-model.md PerMedDay
+- [x] T015 [US3] Extend history CSS in `index.html` for per-med rows/marks (palette vars only)
+- [x] T016 [US3] Validate US3 via quickstart check 4
 
 ## Phase 6: Polish & Cross-Cutting
 
-- [ ] T017 Full quickstart run: checks 1–7 including read-only spy (SC-003), both-theme 390px screenshots (SC-004), zero page errors
-- [ ] T018 Update `CLAUDE.md` (layout: fourth view + history module; concepts: derived day summaries; "Not built yet" list) in the same commit
-- [ ] T019 Mark tasks complete in `specs/001-history-view/tasks.md`, set spec Status to Implemented, commit feature + push
+- [x] T017 Full quickstart run: checks 1–7 including read-only spy (SC-003), both-theme 390px screenshots (SC-004), zero page errors
+- [x] T018 Update `CLAUDE.md` (layout: fourth view + history module; concepts: derived day summaries; "Not built yet" list) in the same commit
+- [x] T019 Mark tasks complete in `specs/001-history-view/tasks.md`, set spec Status to Implemented, commit feature + push
 
 ## Dependencies
 
