@@ -669,7 +669,12 @@ function renderTrip(){
     if (!days) return;
     const units = days * perDay * amtNum(m.dose);
     const w = unitWord(m.dose);
-    totals[w] = (totals[w] || 0) + units;
+    /* "tab" and "tabs" are the same unit — total under one key,
+       and remember a real singular form for the label when we saw one */
+    const key = w.toLowerCase().replace(/s$/, '');
+    totals[key] = totals[key] || { n:0, word:key };
+    totals[key].n += units;
+    if (!/s$/i.test(w)) totals[key].word = w;
     rows.push({ m, days, perDay, units, w });
   });
 
@@ -682,7 +687,7 @@ function renderTrip(){
   const sum = document.createElement('div');
   sum.className = 'totals';
   sum.innerHTML = '<em>Pack in total</em>' +
-    Object.keys(totals).map(w => tidy(totals[w]) + ' ' + plural(totals[w], w)).join(' · ');
+    Object.keys(totals).map(k => tidy(totals[k].n) + ' ' + plural(totals[k].n, totals[k].word)).join(' · ');
   out.appendChild(sum);
 
   rows.sort((a,b) => b.units - a.units).forEach((r, i) => {
