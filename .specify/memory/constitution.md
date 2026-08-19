@@ -55,6 +55,10 @@ deploy-critical change.
 - Features follow spec-kit: `/speckit-specify` → user reviews the spec → `/speckit-plan`
   → `/speckit-tasks` → `/speckit-implement`. Small fixes (a bug with an obvious correct
   behaviour) may skip the ceremony but never skip browser verification.
+- **Mockup gate (NON-NEGOTIABLE)**: any user-visible feature or UI change gets a visual
+  mockup shown to the user, and implementation/merge waits for their explicit approval.
+  Answering design questions is input to the mockup, not approval to build. Nothing
+  merges to main without the user having seen and approved what it looks like.
 - All work lands on the designated feature branch; commits are per-feature with
   descriptive messages.
 - `CLAUDE.md` is the living map of the code and must be updated in the same commit as
@@ -67,4 +71,4 @@ file with a rationale in the commit message and a version bump below. Every plan
 Constitution Check gates on the principles above; violations must be listed and
 justified in Complexity Tracking or the plan is rejected.
 
-**Version**: 1.0.0 | **Ratified**: 2026-08-19 | **Last Amended**: 2026-08-19
+**Version**: 1.1.0 | **Ratified**: 2026-08-19 | **Last Amended**: 2026-08-19 (mockup gate added after it was violated for 002-care-calendar)

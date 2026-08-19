@@ -12,12 +12,13 @@ The only server code is `api/sync.js`, a Vercel function over a Neon Postgres da
   (`:root`) and once for dark (`html.dark`). Change colours there, not inline. Tints are
   `color-mix(...)` over the palette vars so both themes get them for free — never add a
   hard-coded rgba/hex tint. Text on solid accent backgrounds is `--on-accent`.
-- `<body>` — header (title left; theme/detail/config icon buttons and the date right,
-  date bottom-aligned to the title), segmented meal tabs, four views (checklist, setup,
-  travel, history), the sync section inside the setup view, the add/edit modal.
+- `<body>` — header (title left; theme/calendar/detail/config icon buttons and the date
+  right, date bottom-aligned to the title), care banner + segmented meal tabs, five views
+  (checklist, setup, travel, history, care calendar), the sync section inside the setup
+  view, the add/edit modal and the visit modal.
 - `<script>` — in order: storage wrapper, date maths, the seeded prescription, state, label
-  helpers, checklist render, travel calculator, history view, configuration render,
-  navigation, theme, modal, sync.
+  helpers, checklist render, travel calculator, history view, care calendar + visit sheet,
+  configuration render, navigation, theme, modal, sync.
 
 ## Concepts
 
@@ -30,6 +31,13 @@ The only server code is `api/sync.js`, a Vercel function over a Neon Postgres da
   read `m.start` directly for scheduling — go through `effStart`.
 - **`ui.detail`** toggles the simple/detailed card view via a `detailed` class on `<body>`; the
   hiding is pure CSS, scoped to `#day`.
+- **Care calendar.** Doctor visits (`care:v1`, synced) anchor to a fixed date OR to a med
+  course ending (`after` med id + `offset` days past `courseEnd`, resolved through
+  `effStart`); lab tests live inside their visit with a `before` offset. All dates derive
+  at render time via `visitDate`/`testDate`. Deleting a med freezes anchored visits to
+  their last computed date (same handler that re-roots dependent meds). Month grid weeks
+  start Friday. In-app notification: `updateCareNote()` shows the checklist banner and the
+  calendar-icon dot for due/overdue undone items. Spec: `specs/002-care-calendar/`.
 - **History** is derived entirely at render time (day summaries, streak, per-med record) from
   meds + log — it never writes and has no stored state. `expectedOn(date)` = active meds ×
   their meals via `activeOn`; taken = intersection with `takenOn(date)`, so ticks for deleted
@@ -39,7 +47,7 @@ The only server code is `api/sync.js`, a Vercel function over a Neon Postgres da
 ## Storage
 
 `store.get/set` tries `window.storage` (Claude artifact host), then `localStorage`, then memory.
-Keys: `meds:v3`, `medlog:v4`, `medui:v1`, `medsync:v1`. Bump the version suffix on any breaking
+Keys: `meds:v3`, `medlog:v4`, `medui:v1`, `medsync:v1`, `care:v1`. Bump the version suffix on any breaking
 shape change; `medlog:v4` migrates from a `medlog:v3` (plain arrays) it finds, others start fresh.
 
 `log` is `{ 'YYYY-MM-DD': { 'medId|meal': { t:'ISO time', on:bool } } }`, pruned to 60 days.
@@ -57,6 +65,8 @@ Neon integration). Semantics, all client-side in the sync module at the bottom o
 - meds: last-write-wins on one timestamp for the whole list (`sync.medsTs`, bumped by
   `saveMeds`). When a pull adopts server meds it writes through `store.set` directly, NOT
   `saveMeds` — adopting must not bump the timestamp.
+- care: same whole-list LWW on `sync.careTs` via `saveCare`; the server keeps stored care
+  when a POST omits the field, so pre-calendar clients can't wipe it.
 - log: merged per entry, newest `t` wins; ticks and unticks propagate equally.
 - pending debounced pushes are flushed before every pull (`pullSync` head).
 - the sync code is the only credential; codes are generated with ~60 bits of entropy.

@@ -4,7 +4,7 @@
 
 **Created**: 2026-08-19
 
-**Status**: Draft — awaiting user review of spec + mockup
+**Status**: Built on the feature branch — awaiting user approval of the mockup before merge
 
 **Input**: User description: "Care calendar: doctor visits/checkups and lab tests. A visit can be set on a fixed date OR anchored to a medication course finishing (e.g. 'when Trigastrocare ends' or 'N days after it ends'). Lab tests/analyses attach to a visit and are allocated relative to the visit date (e.g. '3 days before the visit'). A calendar view shows when to do what — upcoming visits, tests, and medication course ends — and items can be marked done. Synced across devices like the med list."
 
@@ -102,7 +102,7 @@ the right days; the agenda lists items in date order with correct labels.
 - A test whose computed date lands in the past (visit soon, offset large) shows
   immediately as overdue-if-undone.
 - Month grid must handle months starting any weekday and 28–31 days; week
-  starts Monday.
+  starts Friday (Fr Sa Su Mo Tu We Th).
 - Done items older than 60 days may be pruned like the tick log (calendar is
   forward-looking; history view remains the record of meds).
 
@@ -121,8 +121,8 @@ the right days; the agenda lists items in date order with correct labels.
   the visit's current date.
 - **FR-004**: Visits and tests MUST be markable done/undone; done state
   survives date recomputation.
-- **FR-005**: A calendar view MUST show a month grid (Mon-start, prev/next
-  navigation, today highlighted) with per-day marks colour-coded by kind
+- **FR-005**: A calendar view MUST show a month grid (week starts Friday,
+  prev/next navigation, today highlighted) with per-day marks colour-coded by kind
   (visit / test / course end), and an agenda of upcoming items in date order
   with overdue undone items flagged at top.
 - **FR-006**: Medication course endings MUST appear in the calendar derived
@@ -137,6 +137,10 @@ the right days; the agenda lists items in date order with correct labels.
 - **FR-009**: Entry point MUST NOT add a persistent tab to the checklist; the
   calendar opens from the header (a fourth small icon) and from a button in the
   setup view, following the app's existing navigation pattern.
+- **FR-010**: In-app notifications: when any visit or test is due today or
+  overdue and not done, the checklist MUST show a slim tappable banner naming
+  the item (or a count when several), and the header calendar icon MUST carry
+  a small dot; tapping either opens the calendar. No system/push notifications.
 
 ### Key Entities
 
@@ -164,8 +168,8 @@ the right days; the agenda lists items in date order with correct labels.
 ## Assumptions
 
 - One person's data; no multi-user calendars or invitations.
-- No notification/reminder component (consistent with the project's standing
-  decision against notifications).
+- Notifications are in-app only (banner + icon dot, FR-010); no system/push
+  notifications, consistent with the project's standing decision.
 - Times of day are out of scope — the calendar is day-granular, matching the
   app's "no clock times" principle.
 - Recurring visits (e.g. every 3 months) are out of scope for v1; a follow-up

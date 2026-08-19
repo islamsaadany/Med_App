@@ -303,6 +303,65 @@
   .hd-slot.ok{background:color-mix(in srgb, var(--green) 13%, transparent);color:var(--green)}
   .hd-slot.no{background:color-mix(in srgb, var(--clay) 13%, transparent);color:var(--clay)}
   .hd-cap{text-align:center;font-size:12px;color:var(--ink-soft);margin:14px 0 4px;opacity:.8}
+
+  /* ---- care calendar ---- */
+  .icon-btn{position:relative}
+  .care-dot{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--clay);
+    display:none;box-shadow:0 0 0 2px var(--paper-2)}
+  .care-note{display:flex;align-items:center;gap:10px;width:100%;font-family:inherit;text-align:left;cursor:pointer;
+    background:color-mix(in srgb, var(--clay) 9%, transparent);border:1px solid color-mix(in srgb, var(--clay) 30%, transparent);
+    border-left:5px solid var(--clay);border-radius:14px;padding:11px 14px;margin:2px 0 12px;color:var(--ink)}
+  .care-note b{flex:1;font-size:13.5px;font-weight:700}
+  .care-note .chev{color:var(--clay)}
+  .cal-wrap{background:var(--paper-2);border:1px solid var(--line);border-radius:16px;padding:14px;
+    box-shadow:var(--shadow);margin-bottom:6px}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .cal-head b{font-family:"Fraunces",serif;font-size:17px;font-weight:600}
+  .cal-nav{display:flex;gap:6px}
+  .cal-nav button{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:var(--paper);
+    color:var(--ink-soft);font-family:inherit;font-size:15px;cursor:pointer;display:grid;place-items:center}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+  .cal-dow{font-size:9.5px;font-weight:700;letter-spacing:.08em;color:var(--ink-soft);text-transform:uppercase;padding:4px 0}
+  .cal-day{position:relative;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-size:13.5px;font-weight:600;color:var(--ink);border-radius:10px;cursor:pointer}
+  .cal-day.out{opacity:.28;font-weight:400;cursor:default}
+  .cal-day.sel{background:color-mix(in srgb, var(--green) 18%, transparent)}
+  .cal-day.today{background:var(--green);color:var(--on-accent)}
+  .cal-dots{display:flex;gap:2.5px;margin-top:2px;height:5px}
+  .cal-dots i{width:5px;height:5px;border-radius:50%}
+  .dk-visit{background:var(--clay)}
+  .dk-test{background:var(--bwait)}
+  .dk-end{background:var(--ochre)}
+  .cal-legend{display:flex;gap:12px;justify-content:center;margin-top:10px;font-size:11px;color:var(--ink-soft);font-weight:600}
+  .cal-legend i{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+  .ag-item{display:flex;align-items:center;gap:12px;background:var(--paper-2);border:1px solid var(--line);
+    border-left:5px solid var(--line);border-radius:14px;padding:11px 14px;margin-bottom:7px;box-shadow:var(--shadow)}
+  .ag-item.visit{border-left-color:var(--clay)}
+  .ag-item.test{border-left-color:var(--bwait)}
+  .ag-item.end{border-left-color:var(--ochre);opacity:.85}
+  .ag-when{min-width:46px;text-align:center;flex:0 0 auto}
+  .ag-when b{font-family:"Fraunces",serif;font-size:20px;font-weight:600;display:block;line-height:1}
+  .ag-when span{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+  .ag-body{flex:1;min-width:0;cursor:pointer}
+  .ag-item.end .ag-body{cursor:default}
+  .ag-body b{font-size:15px;font-weight:700;display:block;word-break:break-word}
+  .ag-sub{font-size:12px;color:var(--ink-soft);display:block}
+  .ag-kind{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:block}
+  .ag-item.visit .ag-kind{color:var(--clay)}
+  .ag-item.test .ag-kind{color:var(--bwait)}
+  .ag-item.end .ag-kind{color:var(--ochre)}
+  .ag-item.overdue .ag-kind{color:var(--clay)}
+  .ag-check{flex:0 0 auto;width:34px;height:34px;border-radius:50%;cursor:pointer;
+    border:2px solid color-mix(in srgb, var(--ink) 22%, transparent);background:transparent;display:grid;place-items:center}
+  .ag-check svg{width:15px;height:15px;stroke:color-mix(in srgb, var(--ink) 25%, transparent);
+    stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .ag-item.done .ag-check{background:var(--green);border-color:var(--green)}
+  .ag-item.done .ag-check svg{stroke:var(--on-accent)}
+  .ag-item.done .ag-body b{text-decoration:line-through;opacity:.6}
+  .vt-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+  .vt-row input[type=text]{flex:1;min-width:0}
+  .vt-row input[type=number]{width:74px;flex:0 0 auto}
+  .vt-row .x{width:30px;height:30px;flex:0 0 auto;font-size:17px}
   footer{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:30px;opacity:.75}
 </style>
 </head>
@@ -317,6 +376,7 @@
     <div class="tb-right">
       <div class="icons">
         <button class="icon-btn" id="mode" aria-label="Switch to dark theme"></button>
+        <button class="icon-btn" id="calBtn" aria-label="Care calendar"></button>
         <button class="icon-btn" id="eye" aria-label="Show details"></button>
         <button class="icon-btn" id="gear" aria-label="Configuration"></button>
       </div>
@@ -332,11 +392,15 @@
 </div>
 
 <div class="view on" id="viewToday">
+  <button class="care-note" id="careNote" style="display:none">
+    <b></b><span class="chev">›</span>
+  </button>
   <div id="day"></div>
 </div>
 
 <div class="view" id="viewSetup">
   <button class="btn trip" id="histBtn">History — how you've been doing</button>
+  <button class="btn trip" id="calSetupBtn">Care calendar — visits &amp; tests</button>
   <button class="btn trip" id="tripBtn">Travel calculator — what to pack</button>
   <div id="setup"></div>
   <div class="sec-head"><h2>Sync</h2><span class="rule"></span></div>
@@ -362,6 +426,10 @@
 
 <div class="view" id="viewHist">
   <div id="hist"></div>
+</div>
+
+<div class="view" id="viewCal">
+  <div id="cal"></div>
 </div>
 
 <footer>Saved on this device · tap any medication to edit</footer>
@@ -444,6 +512,60 @@
   <button class="btn ghost" id="del" style="display:none">Delete this medication</button>
 </div>
 
+<div class="sheet" id="vsheet">
+  <div class="sheet-head">
+    <h3 id="vsheetTitle">Add doctor visit</h3>
+    <button class="x" id="vcloseX" aria-label="Close">&times;</button>
+  </div>
+
+  <div class="field">
+    <label for="vName">Visit</label>
+    <input type="text" id="vName" placeholder="e.g. Dr. Ahmed — follow-up" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label>When</label>
+    <div class="seg" id="vAnchorSeg">
+      <button data-v="date">On a date</button>
+      <button data-v="after">After a course</button>
+    </div>
+  </div>
+
+  <div class="field" id="vDateField">
+    <label for="vDate">Date</label>
+    <input type="date" id="vDate">
+  </div>
+
+  <div class="field" id="vAfterField" style="display:none">
+    <div class="row">
+      <div>
+        <label for="vAfter">Course</label>
+        <select id="vAfter"></select>
+      </div>
+      <div>
+        <label for="vOffset">Days after it ends</label>
+        <input type="number" id="vOffset" min="0" max="30" step="1" value="1">
+      </div>
+    </div>
+    <p class="hint" id="vHint"></p>
+  </div>
+
+  <div class="field">
+    <label>Tests to do before</label>
+    <div id="vTests"></div>
+    <button class="btn cancel" id="vAddTest" style="margin-top:6px">+ Add a test</button>
+  </div>
+
+  <div class="field">
+    <label for="vNote">Note</label>
+    <input type="text" id="vNote" placeholder="optional" autocomplete="off">
+  </div>
+
+  <button class="btn primary" id="vSave">Save visit</button>
+  <button class="btn cancel" id="vCancel">Cancel</button>
+  <button class="btn ghost" id="vDel" style="display:none">Delete this visit</button>
+</div>
+
 <script>
 /* ---------------- storage ---------------- */
 const MEM = {};
@@ -461,7 +583,7 @@ const store = {
     try { localStorage.setItem(k, v); } catch(e){}
   }
 };
-const K_MEDS='meds:v3', K_LOG='medlog:v4', K_UI='medui:v1', K_SYNC='medsync:v1';
+const K_MEDS='meds:v3', K_LOG='medlog:v4', K_UI='medui:v1', K_SYNC='medsync:v1', K_CARE='care:v1';
 const MEALS = [
   { id:'breakfast', label:'Breakfast' },
   { id:'lunch',     label:'Lunch' },
@@ -533,7 +655,8 @@ const seedMeds = () => SEED.map((s,i) => ({
 
 /* ---------------- state ---------------- */
 let meds = [], log = {}, ui = { tab:'today', meal:'breakfast', detail:false, theme:'light' }, draft = null;
-let sync = { code:null, medsTs:null, last:null, err:null };   /* last/err are per-session, not stored */
+let sync = { code:null, medsTs:null, careTs:null, last:null, err:null };   /* last/err are per-session, not stored */
+let care = [];   /* doctor visits, each with embedded tests — see specs/002-care-calendar */
 
 async function load(){
   const raw = await store.get(K_MEDS);
@@ -554,6 +677,7 @@ async function load(){
   }
   try { ui = Object.assign(ui, JSON.parse(await store.get(K_UI) || '{}')); } catch(e){}
   try { Object.assign(sync, JSON.parse(await store.get(K_SYNC) || '{}')); } catch(e){}
+  try { care = JSON.parse(await store.get(K_CARE) || '[]'); } catch(e){ care = []; }
   prune();
   /* open on the meal that's closest to now */
   const h = new Date().getHours();
@@ -655,8 +779,10 @@ function render(){
   }
 
   updateCounts();
+  updateCareNote();
   renderSetup();
   if (ui.tab === 'history') renderHistory();   /* sync pulls land here too */
+  if (ui.tab === 'cal') renderCal();
 }
 
 /* recomputes the progress bar and the per-meal counters without touching the cards */
@@ -939,6 +1065,265 @@ function renderMedHistory(el){
   });
 }
 
+/* ---------------- care calendar (specs/002-care-calendar) ----------------
+   Visits anchor to a course end via effStart, tests anchor to their visit —
+   all dates derived at render time. `care` is stored + synced (whole-list
+   LWW on careTs); calBack/calMonth/calSel/vdraft are transient. */
+let calBack = 'today', calMonth = null, calSel = null, vdraft = null;
+
+const courseEnd = m => { const d = new Date(effStart(m)+'T00:00:00'); d.setDate(d.getDate() + (m.days||1) - 1); return iso(d); };
+function visitDate(v){
+  if (v.after){
+    const m = meds.find(x => x.id === v.after);
+    if (m && m.days){
+      const d = new Date(courseEnd(m)+'T00:00:00'); d.setDate(d.getDate() + (v.offset||0)); return iso(d);
+    }
+  }
+  return v.date || todayKey();
+}
+const testDate = (v, t) => { const d = new Date(visitDate(v)+'T00:00:00'); d.setDate(d.getDate() - (t.before||0)); return iso(d); };
+
+async function saveCare(){
+  const cutoff = plusDays(-60);
+  care = care.filter(v => !(v.done && (v.tests||[]).every(t => t.done) && visitDate(v) < cutoff));
+  sync.careTs = new Date().toISOString(); saveSyncMeta();
+  await store.set(K_CARE, JSON.stringify(care)); pushSoon();
+}
+
+function offsetWord(v){
+  const m = meds.find(x => x.id === v.after);
+  if (!m) return '';
+  return v.offset ? v.offset + (v.offset === 1 ? ' day' : ' days') + ' after ' + m.name + ' ends'
+                  : 'when ' + m.name + ' ends';
+}
+
+/* every dated item: visits, their tests, and course endings (informational) */
+function careItems(){
+  const items = [];
+  care.forEach(v => {
+    items.push({ date: visitDate(v), kind:'visit', label: v.title,
+      sub: v.after ? offsetWord(v) : (v.note || ''), done: !!v.done, vId: v.id });
+    (v.tests||[]).forEach(t => items.push({ date: testDate(v, t), kind:'test', label: t.name,
+      sub: (t.before ? t.before + (t.before === 1 ? ' day' : ' days') + ' before ' : 'day of ') + v.title,
+      done: !!t.done, vId: v.id, tId: t.id }));
+  });
+  meds.filter(m => m.days).forEach(m => items.push({ date: courseEnd(m), kind:'end',
+    label: m.name + ' finishes', sub: m.days + '-day course', done:false, end:true }));
+  return items.sort((a,b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+}
+
+/* due today or overdue and not done — feeds the checklist banner and icon dot */
+function careDue(){
+  const today = todayKey();
+  return careItems().filter(it => !it.end && !it.done && it.date <= today && it.date >= plusDays(-60));
+}
+function updateCareNote(){
+  const note = document.getElementById('careNote');
+  const due = careDue();
+  document.getElementById('careDot').style.display = due.length ? 'block' : 'none';
+  if (!due.length){ note.style.display = 'none'; return; }
+  note.style.display = 'flex';
+  const today = todayKey();
+  const overdueN = due.filter(it => it.date < today).length;
+  note.querySelector('b').textContent = due.length === 1
+    ? (due[0].kind === 'test' ? 'Lab test' : 'Doctor visit') + (due[0].date < today ? ' overdue' : ' today') + ' — ' + due[0].label
+    : due.length + ' care items need attention' + (overdueN ? ' (' + overdueN + ' overdue)' : '');
+}
+
+function renderCal(){
+  const el = document.getElementById('cal');
+  el.innerHTML = '';
+  const today = todayKey();
+  if (!calMonth){ const d = new Date(); calMonth = { y: d.getFullYear(), m: d.getMonth() }; }
+  const items = careItems();
+  const byDate = {};
+  items.forEach(it => (byDate[it.date] = byDate[it.date] || []).push(it));
+
+  /* month grid — the week starts on Friday */
+  const wrap = document.createElement('div');
+  wrap.className = 'cal-wrap';
+  const lead = (new Date(calMonth.y, calMonth.m, 1).getDay() - 5 + 7) % 7;
+  const dim = new Date(calMonth.y, calMonth.m + 1, 0).getDate();
+  let cells = '';
+  ['Fr','Sa','Su','Mo','Tu','We','Th'].forEach(d => cells += '<span class="cal-dow">' + d + '</span>');
+  for (let i = 0; i < lead; i++)
+    cells += '<span class="cal-day out">' + new Date(calMonth.y, calMonth.m, 1 - lead + i).getDate() + '</span>';
+  for (let d = 1; d <= dim; d++){
+    const ds = iso(new Date(calMonth.y, calMonth.m, d));
+    const dots = [...new Set((byDate[ds] || []).map(x => x.kind))].slice(0,3)
+      .map(k => '<i class="dk-' + k + '"></i>').join('');
+    cells += '<span class="cal-day' + (ds === today ? ' today' : '') + (ds === calSel ? ' sel' : '') +
+      '" data-d="' + ds + '">' + d + '<span class="cal-dots">' + dots + '</span></span>';
+  }
+  const tail = (7 - (lead + dim) % 7) % 7;
+  for (let d = 1; d <= tail; d++) cells += '<span class="cal-day out">' + d + '</span>';
+  const monthName = new Date(calMonth.y, calMonth.m, 1).toLocaleDateString(undefined,{month:'long', year:'numeric'});
+  wrap.innerHTML = '<div class="cal-head"><b></b>' +
+    '<div class="cal-nav"><button id="calPrev" aria-label="Previous month">‹</button><button id="calNext" aria-label="Next month">›</button></div></div>' +
+    '<div class="cal-grid">' + cells + '</div>' +
+    '<div class="cal-legend"><span><i class="dk-visit"></i>Visit</span><span><i class="dk-test"></i>Lab test</span><span><i class="dk-end"></i>Course ends</span></div>';
+  wrap.querySelector('.cal-head b').textContent = monthName;
+  el.appendChild(wrap);
+  wrap.querySelector('#calPrev').onclick = () => { calMonth.m--; if (calMonth.m < 0){ calMonth.m = 11; calMonth.y--; } renderCal(); };
+  wrap.querySelector('#calNext').onclick = () => { calMonth.m++; if (calMonth.m > 11){ calMonth.m = 0; calMonth.y++; } renderCal(); };
+  wrap.querySelectorAll('.cal-day[data-d]').forEach(c => c.onclick = () => {
+    calSel = calSel === c.dataset.d ? null : c.dataset.d; renderCal();
+  });
+
+  const addSection = title => {
+    const h = document.createElement('div');
+    h.className = 'sec-head';
+    h.innerHTML = '<h2></h2><span class="rule"></span>';
+    h.querySelector('h2').textContent = title;
+    el.appendChild(h);
+  };
+  const addItem = it => {
+    const row = document.createElement('div');
+    row.className = 'ag-item ' + it.kind + (it.done ? ' done' : '');
+    const d = new Date(it.date + 'T00:00:00');
+    row.innerHTML = '<div class="ag-when"><b>' + d.getDate() + '</b><span>' +
+        d.toLocaleDateString(undefined,{month:'short'}) + '</span></div>' +
+      '<div class="ag-body"><span class="ag-kind"></span><b></b><span class="ag-sub"></span></div>' +
+      (it.end ? '' : '<button class="ag-check" aria-label="Mark done"><svg viewBox="0 0 24 24"><polyline points="4,12.5 9.5,18 20,6.5"/></svg></button>');
+    row.querySelector('.ag-kind').textContent =
+      (it.kind === 'visit' ? 'Doctor visit' : it.kind === 'test' ? 'Lab test' : 'Course ends') +
+      (it.overdue ? ' · overdue' : '');
+    if (it.overdue) row.classList.add('overdue');
+    row.querySelector('.ag-body b').textContent = it.label;
+    row.querySelector('.ag-sub').textContent = it.sub || '';
+    if (!it.end){
+      row.querySelector('.ag-check').onclick = async e => {
+        e.stopPropagation();
+        const v = care.find(x => x.id === it.vId); if (!v) return;
+        if (it.tId){ const t = (v.tests||[]).find(x => x.id === it.tId); if (t) t.done = !t.done; }
+        else v.done = !v.done;
+        await saveCare(); renderCal(); updateCareNote();
+      };
+      row.querySelector('.ag-body').onclick = () => openVisitSheet(care.find(x => x.id === it.vId));
+    }
+    el.appendChild(row);
+  };
+
+  if (calSel){
+    addSection(histDate(calSel));
+    const sel = byDate[calSel] || [];
+    if (!sel.length){
+      const e2 = document.createElement('div'); e2.className = 'empty';
+      e2.textContent = 'Nothing on this day.'; el.appendChild(e2);
+    }
+    sel.forEach(addItem);
+  }
+
+  const overdue = items.filter(it => !it.end && !it.done && it.date < today && it.date >= plusDays(-60))
+    .map(it => ({ ...it, overdue: true }));
+  const upcoming = items.filter(it => it.date >= today && it.date <= plusDays(120));
+  addSection('Coming up');
+  if (!overdue.length && !upcoming.length){
+    const e2 = document.createElement('div'); e2.className = 'empty';
+    e2.textContent = 'Nothing planned yet — add a doctor visit below.';
+    el.appendChild(e2);
+  } else {
+    overdue.forEach(addItem);
+    upcoming.forEach(addItem);
+  }
+}
+
+/* ---- visit sheet ---- */
+function openVisitSheet(v){
+  vdraft = v ? JSON.parse(JSON.stringify(v))
+             : { id:'v'+Date.now(), title:'', note:'', date:todayKey(), after:null, offset:1, done:false, tests:[] };
+  document.getElementById('vsheetTitle').textContent = v ? 'Edit visit' : 'Add doctor visit';
+  document.getElementById('vName').value = vdraft.title;
+  document.getElementById('vNote').value = vdraft.note || '';
+  document.getElementById('vDate').value = vdraft.date || todayKey();
+  document.getElementById('vOffset').value = vdraft.offset ?? 1;
+  buildVAfter(); paintVAnchor(); paintVTests();
+  document.getElementById('vDel').style.display = v ? 'block' : 'none';
+  scrim.classList.add('open');
+  const sh = document.getElementById('vsheet');
+  sh.classList.add('open'); sh.scrollTop = 0;
+}
+function closeVisitSheet(){ scrim.classList.remove('open'); document.getElementById('vsheet').classList.remove('open'); vdraft = null; }
+
+function buildVAfter(){
+  const sel = document.getElementById('vAfter');
+  sel.innerHTML = '';
+  meds.filter(m => m.days).forEach(m => {
+    const o = document.createElement('option');
+    o.value = m.id; o.textContent = m.name + ' (ends ' + histDate(courseEnd(m)) + ')';
+    sel.appendChild(o);
+  });
+  if (vdraft.after) sel.value = vdraft.after;
+}
+function paintVAnchor(){
+  const mode = vdraft.after ? 'after' : 'date';
+  document.querySelectorAll('#vAnchorSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === mode));
+  document.getElementById('vDateField').style.display = mode === 'date' ? 'block' : 'none';
+  document.getElementById('vAfterField').style.display = mode === 'after' ? 'block' : 'none';
+  if (mode === 'after')
+    document.getElementById('vHint').textContent =
+      'Lands on ' + histDate(visitDate(vdraft)) + ' — moves if the course moves.';
+}
+document.querySelectorAll('#vAnchorSeg button').forEach(b => b.onclick = () => {
+  if (b.dataset.v === 'after'){
+    const sel = document.getElementById('vAfter');
+    const first = meds.find(m => m.days);
+    if (!first) return;                       /* nothing with an end date to anchor to */
+    vdraft.after = sel.value || first.id;
+  } else vdraft.after = null;
+  paintVAnchor();
+});
+document.getElementById('vAfter').onchange = e => { vdraft.after = e.target.value; paintVAnchor(); };
+document.getElementById('vOffset').oninput = e => {
+  vdraft.offset = Math.max(0, Math.min(30, parseInt(e.target.value, 10) || 0)); paintVAnchor();
+};
+
+function paintVTests(){
+  const box = document.getElementById('vTests');
+  box.innerHTML = '';
+  vdraft.tests.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'vt-row';
+    row.innerHTML = '<input type="text" placeholder="e.g. CBC · تحليل" autocomplete="off">' +
+      '<input type="number" min="0" max="30" step="1" title="days before the visit">' +
+      '<button class="x" aria-label="Remove test">&times;</button>';
+    const inputs = row.querySelectorAll('input');
+    inputs[0].value = t.name; inputs[1].value = t.before;
+    inputs[0].oninput = e => t.name = e.target.value;
+    inputs[1].oninput = e => t.before = Math.max(0, Math.min(30, parseInt(e.target.value, 10) || 0));
+    row.querySelector('.x').onclick = () => { vdraft.tests.splice(i, 1); paintVTests(); };
+    box.appendChild(row);
+  });
+  if (vdraft.tests.length){
+    const h = document.createElement('p');
+    h.className = 'hint'; h.style.marginTop = '2px';
+    h.textContent = 'The number is how many days before the visit.';
+    box.appendChild(h);
+  }
+}
+document.getElementById('vAddTest').onclick = () => {
+  vdraft.tests.push({ id:'t' + Date.now() + vdraft.tests.length, name:'', before:3, done:false });
+  paintVTests();
+};
+
+document.getElementById('vSave').onclick = async () => {
+  const title = document.getElementById('vName').value.trim();
+  if (!title){ document.getElementById('vName').focus(); return; }
+  vdraft.title = title;
+  vdraft.note = document.getElementById('vNote').value.trim();
+  if (!vdraft.after) vdraft.date = document.getElementById('vDate').value || todayKey();
+  vdraft.tests = vdraft.tests.filter(t => t.name.trim());
+  const i = care.findIndex(v => v.id === vdraft.id);
+  if (i >= 0) care[i] = vdraft; else care.push(vdraft);
+  await saveCare(); closeVisitSheet(); renderCal(); updateCareNote();
+};
+document.getElementById('vDel').onclick = async () => {
+  care = care.filter(v => v.id !== vdraft.id);
+  await saveCare(); closeVisitSheet(); renderCal(); updateCareNote();
+};
+document.getElementById('vCancel').onclick = closeVisitSheet;
+document.getElementById('vcloseX').onclick = closeVisitSheet;
+
 /* ---------------- configuration view ---------------- */
 function medRow(m){
   const row = document.createElement('div');
@@ -1034,29 +1419,46 @@ function setTab(t){
   document.getElementById('viewSetup').classList.toggle('on', t === 'setup');
   document.getElementById('viewTrip').classList.toggle('on', t === 'trip');
   document.getElementById('viewHist').classList.toggle('on', t === 'history');
+  document.getElementById('viewCal').classList.toggle('on', t === 'cal');
   document.getElementById('date').classList.toggle('link', today);   /* tappable → history */
-  document.getElementById('addBtn').style.display = t === 'setup' ? 'block' : 'none';   /* adding is a setup action */
+  const add = document.getElementById('addBtn');
+  add.style.display = (t === 'setup' || t === 'cal') ? 'block' : 'none';
+  add.textContent = t === 'cal' ? '+ Add doctor visit' : '+ Add medication';
   document.getElementById('filters').style.display = today ? 'flex' : 'none';
   document.getElementById('eye').style.display = today ? 'grid' : 'none';
+  document.getElementById('calBtn').style.display = today ? 'grid' : 'none';
   document.getElementById('eyebrow').textContent = today ? 'Daily doses'
-    : (t === 'trip' ? 'Calculator' : (t === 'history' ? 'History' : 'Setup'));
+    : (t === 'trip' ? 'Calculator' : (t === 'history' ? 'History' : (t === 'cal' ? 'Care plan' : 'Setup')));
   document.getElementById('title').innerHTML = today ? "Today's <em>meds</em>"
-    : (t === 'trip' ? 'What to <em>pack</em>' : (t === 'history' ? "How it's <em>going</em>" : 'Your <em>list</em>'));
+    : (t === 'trip' ? 'What to <em>pack</em>'
+    : (t === 'history' ? "How it's <em>going</em>"
+    : (t === 'cal' ? "What's <em>next</em>" : 'Your <em>list</em>')));
   const g = document.getElementById('gear');
   g.innerHTML = today ? ICON_GEAR : ICON_BACK;
   g.classList.toggle('on', !today);
   g.setAttribute('aria-label', today ? 'Configuration' : 'Back');
   window.scrollTo({top:0, behavior:'smooth'});
 }
-/* the icon walks back one step: trip → setup → checklist; history returns to where it was opened */
+/* the icon walks back one step: trip → setup → checklist; history/calendar return to where they were opened */
 document.getElementById('gear').onclick = () =>
   setTab(ui.tab === 'history' ? histBack
+    : ui.tab === 'cal' ? calBack
     : ui.tab === 'trip' ? 'setup' : (ui.tab === 'setup' ? 'today' : 'setup'));
 
 /* history entries: tap the date on the checklist, or the button in setup */
 function openHistory(from){ histBack = from; histMed = null; setTab('history'); renderHistory(); }
 document.getElementById('date').onclick = () => { if (ui.tab === 'today') openHistory('today'); };
 document.getElementById('histBtn').onclick = () => openHistory('setup');
+
+/* care calendar entries: header icon, setup button, or the due-items banner */
+const ICON_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+  '<rect x="3.5" y="5" width="17" height="16" rx="3"/><line x1="3.5" y1="10" x2="20.5" y2="10"/>' +
+  '<line x1="8.5" y1="3" x2="8.5" y2="7"/><line x1="15.5" y1="3" x2="15.5" y2="7"/></svg>';
+document.getElementById('calBtn').innerHTML = ICON_CAL + '<span class="care-dot" id="careDot"></span>';
+function openCal(from){ calBack = from; calSel = null; setTab('cal'); renderCal(); }
+document.getElementById('calBtn').onclick = () => openCal('today');
+document.getElementById('calSetupBtn').onclick = () => openCal('setup');
+document.getElementById('careNote').onclick = () => openCal('today');
 
 /* ---------------- modal ---------------- */
 const sheet = document.getElementById('sheet'), scrim = document.getElementById('scrim');
@@ -1130,10 +1532,15 @@ function setGap(v){
 document.querySelectorAll('#gapOpts button').forEach(b => b.onclick = () =>
   setGap(Number(b.dataset.v) === draft.gap ? 0 : b.dataset.v));
 
-document.getElementById('addBtn').onclick = () => openSheet(null);
+document.getElementById('addBtn').onclick = () =>
+  ui.tab === 'cal' ? openVisitSheet(null) : openSheet(null);
 document.getElementById('closeX').onclick = closeSheet;
 document.getElementById('cancel').onclick = closeSheet;
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && draft) closeSheet(); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (draft) closeSheet();
+  if (vdraft) closeVisitSheet();
+});
 /* backdrop taps are intentionally ignored */
 
 document.getElementById('save').onclick = async () => {
@@ -1157,8 +1564,10 @@ document.getElementById('save').onclick = async () => {
 document.getElementById('del').onclick = async () => {
   const gone = draft.id;
   meds.forEach(m => { if (m.after === gone){ m.start = effStart(m); m.after = null; } });
+  /* visits anchored to this med freeze on their last computed date (while the med still exists) */
+  care.forEach(v => { if (v.after === gone){ v.date = visitDate(v); v.after = null; } });
   meds = meds.filter(m => m.id !== gone);
-  await saveMeds(); closeSheet(); render();
+  await saveMeds(); await saveCare(); closeSheet(); render();
 };
 
 document.getElementById('reset').onclick = async () => {
@@ -1179,7 +1588,7 @@ function newSyncCode(){
   let s = ''; b.forEach(x => s += A[x % A.length]);
   return 'doses-' + s.slice(0,6) + '-' + s.slice(6);
 }
-async function saveSyncMeta(){ await store.set(K_SYNC, JSON.stringify({ code:sync.code, medsTs:sync.medsTs })); }
+async function saveSyncMeta(){ await store.set(K_SYNC, JSON.stringify({ code:sync.code, medsTs:sync.medsTs, careTs:sync.careTs })); }
 
 function mergeLog(a, b){
   const out = {};
@@ -1199,7 +1608,7 @@ async function pushSync(){
   if (!sync.code) return;
   try {
     const r = await fetch('/api/sync', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ code: sync.code, meds, log, medsUpdated: sync.medsTs }) });
+      body: JSON.stringify({ code: sync.code, meds, log, medsUpdated: sync.medsTs, care, careUpdated: sync.careTs }) });
     if (r.status === 503) throw 'nodb';
     if (!r.ok) throw 'net';
     sync.last = new Date().toISOString(); sync.err = null;
@@ -1228,6 +1637,11 @@ async function pullSync(){
         await store.set(K_LOG, JSON.stringify(log));
       }
       if (JSON.stringify(log) !== JSON.stringify(row.log || {})) needPush = true;
+      const cTs = row.care_updated || '';
+      if (cTs > (sync.careTs || '') && JSON.stringify(row.care || []) !== JSON.stringify(care)){
+        care = row.care || []; sync.careTs = cTs; changed = true;
+        await store.set(K_CARE, JSON.stringify(care));   /* adopt without bumping the timestamp */
+      } else if ((sync.careTs || '') > cTs) needPush = true;
     }
     sync.last = new Date().toISOString(); sync.err = null;
     await saveSyncMeta();
