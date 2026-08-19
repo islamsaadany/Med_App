@@ -28,6 +28,7 @@
     --withm:#2E5D4B;       /* with / right after */
     --wait:#8B5CB8;        /* wait after the meal */
     --dep-ink:#6C3F96;     /* text on the wait/dependency tint */
+    --red:#C2453A;         /* endings */
     --on-accent:#F7F3EA;   /* text on solid accent backgrounds */
     --line:rgba(30,42,36,.14);
     --shadow:0 1px 0 rgba(30,42,36,.05), 0 10px 24px -14px rgba(30,42,36,.4);
@@ -44,6 +45,7 @@
     --withm:#8CBEA6;
     --wait:#B492D8;
     --dep-ink:#C9ADE8;
+    --red:#E08074;
     --on-accent:#13201A;
     --line:rgba(232,227,215,.15);
     --shadow:0 1px 0 rgba(0,0,0,.25), 0 10px 24px -14px rgba(0,0,0,.7);
@@ -334,7 +336,7 @@
   .cal-dots i{width:5px;height:5px;border-radius:50%}
   .dk-visit{background:var(--green)}
   .dk-test{background:var(--bwait)}
-  .dk-end{background:var(--ochre)}
+  .dk-end{background:var(--red)}
   .dk-book{background:var(--wait)}
   .cal-legend{display:flex;gap:12px;justify-content:center;margin-top:10px;font-size:11px;color:var(--ink-soft);font-weight:600}
   .cal-legend i{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
@@ -343,7 +345,7 @@
   .ag-item.visit{border-left-color:var(--green)}
   .ag-item.test{border-left-color:var(--bwait)}
   .ag-item.book{border-left-color:var(--wait)}
-  .ag-item.end{border-left-color:var(--ochre);opacity:.85}
+  .ag-item.end{border-left-color:var(--red);opacity:.85}
   .ag-when{min-width:46px;text-align:center;flex:0 0 auto}
   .ag-when b{font-family:"Fraunces",serif;font-size:20px;font-weight:600;display:block;line-height:1}
   .ag-when span{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
@@ -355,7 +357,7 @@
   .ag-item.visit .ag-kind{color:var(--green)}
   .ag-item.test .ag-kind{color:var(--bwait)}
   .ag-item.book .ag-kind{color:var(--dep-ink)}
-  .ag-item.end .ag-kind{color:var(--ochre)}
+  .ag-item.end .ag-kind{color:var(--red)}
   .ag-item.overdue .ag-kind{color:var(--clay)}
   .ag-check{flex:0 0 auto;width:34px;height:34px;border-radius:50%;cursor:pointer;
     border:2px solid color-mix(in srgb, var(--ink) 22%, transparent);background:transparent;display:grid;place-items:center}
