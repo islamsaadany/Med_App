@@ -366,7 +366,7 @@
 
 <footer>Saved on this device · tap any medication to edit</footer>
 
-<button class="fab" id="addBtn">+ Add medication</button>
+<button class="fab" id="addBtn" style="display:none">+ Add medication</button>
 
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet">
@@ -1035,6 +1035,7 @@ function setTab(t){
   document.getElementById('viewTrip').classList.toggle('on', t === 'trip');
   document.getElementById('viewHist').classList.toggle('on', t === 'history');
   document.getElementById('date').classList.toggle('link', today);   /* tappable → history */
+  document.getElementById('addBtn').style.display = t === 'setup' ? 'block' : 'none';   /* adding is a setup action */
   document.getElementById('filters').style.display = today ? 'flex' : 'none';
   document.getElementById('eye').style.display = today ? 'grid' : 'none';
   document.getElementById('eyebrow').textContent = today ? 'Daily doses'
