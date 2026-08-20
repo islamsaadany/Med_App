@@ -318,6 +318,13 @@
     border-left:5px solid var(--clay);border-radius:14px;padding:11px 14px;margin:2px 0 12px;color:var(--ink)}
   .care-note b{flex:1;font-size:13.5px;font-weight:700}
   .care-note .chev{color:var(--clay)}
+  .done-card{background:var(--paper-2);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+    padding:36px 22px 26px;text-align:center;margin-top:6px;animation:rise .4s cubic-bezier(.2,.8,.2,1) both}
+  .done-ico{width:64px;height:64px;border-radius:50%;background:var(--green);margin:0 auto 16px;display:grid;place-items:center}
+  .done-ico svg{width:30px;height:30px;stroke:var(--on-accent);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .done-card h2{font-family:"Fraunces",serif;font-weight:600;font-size:27px;margin:0 0 6px;letter-spacing:-.01em}
+  .done-card p{color:var(--ink-soft);font-size:14.5px;margin:0 0 20px}
+  .done-card .btn{margin-top:0}
   .cal-wrap{background:var(--paper-2);border:1px solid var(--line);border-radius:16px;padding:14px;
     box-shadow:var(--shadow);margin-bottom:6px}
   .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -403,6 +410,12 @@
   <button class="care-note" id="careNote" style="display:none">
     <b></b><span class="chev">›</span>
   </button>
+  <div class="done-card" id="doneCard" style="display:none">
+    <div class="done-ico"><svg viewBox="0 0 24 24"><polyline points="4,12.5 9.5,18 20,6.5"/></svg></div>
+    <h2>All done for today</h2>
+    <p id="doneSub"></p>
+    <button class="btn cancel" id="doneShow">Show today's doses</button>
+  </div>
   <div id="day"></div>
 </div>
 
@@ -792,6 +805,7 @@ function render(){
 
   updateCounts();
   updateCareNote();
+  paintDone();
   renderSetup();
   if (ui.tab === 'history') renderHistory();   /* sync pulls land here too */
   if (ui.tab === 'cal') renderCal();
@@ -850,6 +864,36 @@ function defaultMeal(){
   return h < 11 ? 'breakfast' : (h < 17 ? 'lunch' : 'dinner');
 }
 
+/* when every scheduled dose of the day is ticked, the checklist collapses
+   behind a congratulations card; one tap brings the list back */
+let doneExpanded = false;
+function dayComplete(){
+  const taken = takenOn(todayKey());
+  const active = meds.filter(isActive);
+  let any = false;
+  for (const x of MEALS){
+    const list = active.filter(m => (m.meals||[]).includes(x.id));
+    if (list.length) any = true;
+    if (list.some(m => !taken.includes(m.id + '|' + x.id))) return false;
+  }
+  return any;
+}
+function paintDone(){
+  const on = dayComplete() && !doneExpanded && ui.tab === 'today';
+  document.getElementById('doneCard').style.display = on ? 'block' : 'none';
+  document.getElementById('day').style.display = on ? 'none' : 'block';
+  if (ui.tab === 'today')
+    document.getElementById('filters').style.display = on ? 'none' : 'flex';
+  if (on){
+    const streak = streakFrom(historyDays());
+    const total = expectedOn(todayKey()).length;
+    document.getElementById('doneSub').textContent =
+      'All ' + total + ' doses taken' +
+      (streak > 1 ? ' — ' + streak + ' days in a row' : '') + '. See you tomorrow.';
+  }
+}
+document.getElementById('doneShow').onclick = () => { doneExpanded = true; paintDone(); };
+
 /* silent tick: flips this one card, refreshes the counters, saves in the background.
    No re-render, so nothing re-animates and the page doesn't jump. */
 function toggle(key, el){
@@ -859,6 +903,8 @@ function toggle(key, el){
   day[key] = { t: new Date().toISOString(), on: nowDone };
   if (el) el.classList.toggle('done', nowDone);
   updateCounts();
+  if (nowDone && dayComplete()) doneExpanded = false;   /* the last dose earns the moment */
+  paintDone();
   saveLog();
 }
 
@@ -1477,6 +1523,7 @@ function setTab(t){
   g.innerHTML = today ? ICON_GEAR : ICON_BACK;
   g.classList.toggle('on', !today);
   g.setAttribute('aria-label', today ? 'Configuration' : 'Back');
+  paintDone();
   window.scrollTo({top:0, behavior:'smooth'});
 }
 /* the icon walks back one step: trip → setup → checklist; history/calendar return to where they were opened */
