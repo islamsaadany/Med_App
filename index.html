@@ -693,9 +693,7 @@ async function load(){
   try { Object.assign(sync, JSON.parse(await store.get(K_SYNC) || '{}')); } catch(e){}
   try { care = JSON.parse(await store.get(K_CARE) || '[]'); } catch(e){ care = []; }
   prune();
-  /* open on the meal that's closest to now */
-  const h = new Date().getHours();
-  ui.meal = h < 11 ? 'breakfast' : (h < 17 ? 'lunch' : 'dinner');
+  ui.meal = defaultMeal();
   paintFilters(); paintDetail(); paintTheme(); setTab('today'); render();   /* always open on the checklist */
   paintSync(); pullSync();
 }
@@ -837,6 +835,20 @@ function doseCard(m, mealId, taken, i){
 /* the log keeps every tick AND untick with its time, so devices can merge:
    per entry, the newest write wins — an untick beats the older tick it removes */
 const takenOn = d => { const day = log[d] || {}; return Object.keys(day).filter(k => day[k] && day[k].on); };
+
+/* the app opens on the first meal that still has doses to take — a forgotten
+   breakfast pulls you back to it, a finished one hands you the next meal.
+   Only when today is fully done (or empty) does the clock decide. */
+function defaultMeal(){
+  const active = meds.filter(isActive);
+  const taken = takenOn(todayKey());
+  for (const x of MEALS){
+    const list = active.filter(m => (m.meals||[]).includes(x.id));
+    if (list.some(m => !taken.includes(m.id + '|' + x.id))) return x.id;
+  }
+  const h = new Date().getHours();
+  return h < 11 ? 'breakfast' : (h < 17 ? 'lunch' : 'dinner');
+}
 
 /* silent tick: flips this one card, refreshes the counters, saves in the background.
    No re-render, so nothing re-animates and the page doesn't jump. */
